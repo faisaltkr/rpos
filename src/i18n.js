@@ -3,6 +3,7 @@ import { createI18n } from 'vue-i18n';
 
 const messages = {
   en: {
+    Sales: "Sales",
     dashboard: 'Dashboard',
     invoiceNo: 'Invoice No',
     salesDate: 'Sales Date',
@@ -38,9 +39,10 @@ const messages = {
       stock: 'Stock'
     },
     genWarehouse: 'GEN.WAREHOUSE',
-    SalesMan:"Sales Man"
+    SalesMan: "Sales Man"
   },
   ar: {
+    Sales: "لوحة",
     dashboard: 'لوحة القيادة',
     invoiceNo: 'رقم الفاتورة',
     salesDate: 'تاريخ البيع',
@@ -76,7 +78,7 @@ const messages = {
       stock: 'المخزون'
     },
     genWarehouse: 'المستودع العام',
-    SalesMan:'رجل المبيعات'
+    SalesMan: 'رجل المبيعات'
   }
 };
 

@@ -7,11 +7,17 @@
       <div>
         <div class="flex min-h-full flex-1 flex-col justify-center">
           <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" />
+            <img class="mx-auto h-15 w-auto" src="../../public/images/exone_logo.jpg" alt="Your Company" />
             <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
           </div>
           <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <form @submit.prevent="login" class="space-y-6" method="POST">
+              <div>
+                <label for="baseurl" class="block text-sm font-medium leading-6 text-gray-900">Your Domain URL</label>
+                <div class="mt-2">
+                  <input id="baseURL" v-model="baseURL" type="text" autocomplete="baseURL" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
               <div>
                 <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Username</label>
                 <div class="mt-2">
@@ -38,6 +44,7 @@
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.961 7.961 0 014 12H0c0 3.042 1.135 5.824 3 7.937l3-2.646z"></path>
                     </svg>
                   </span>
+                  <span class="text-white">{{ message }}</span>
                 </button>
               </div>
             </form>
@@ -51,15 +58,15 @@
 <script>
 import axios from "axios";
 import router from "../router";
-import config from '../database/config.json';
 
 export default {
   data() {
     return {
+      baseURL: (localStorage.getItem('baseURL')) ? localStorage.getItem('baseURL') : "",
       username: '',
       password: '',
       loading: false,
-      baseURL:config.settings.baseURL
+      message:""
     };
   },
   methods: {
@@ -69,19 +76,22 @@ export default {
           username:this.username,
           password:this.password
       }
-      let url=this.baseURL+"/api/method/exone_api.auth.authenticate";
-      axios.defaults.headers.post['Content-Type'] = 'application/json';
+        let url=this.baseURL+"/api/method/exone_api.auth.authenticate";
+        axios.defaults.headers.post['Content-Type'] = 'application/json';
         axios.post(url, data).then(response => {
-          console.log(response.data.message);
+          //console.log(response.data.message);
         if(response.data.message.success==true)
         {
+          this.message = "Syncing Items, Customers, Pos Profile etc"
+          localStorage.setItem('baseURL',this.baseURL);
           localStorage.setItem('token',response.data.message.token);
-          let customersUri = this.baseURL+"/api/method/exone_api.masters.get_customers";
+          
+          let customersUri = this.baseURL+'/api/resource/Customer?fields=["name", "customer_name", "customer_type", "customer_group", "territory","naming_series","custom_b2c"]';
           axios.get(customersUri, 
           { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
           ).then(result => {
-              console.log(result.data.message);
-              let customers = result.data.message;
+              
+              let customers = result.data;
               const jsonData = JSON.stringify(customers, null, 2); // Pretty print JSON
               localStorage.setItem('customers',jsonData)
           });
@@ -90,11 +100,27 @@ export default {
           axios.get(items, 
           { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
           ).then(result => {
-              console.log(result.data.message);
+              //console.log(result.data.message);
               let items = result.data.message;
               const jsonItems = JSON.stringify(items, null, 2); // Pretty print JSON
               localStorage.setItem('items',jsonItems)
           });
+
+
+          //fetching pos profile
+
+          let pos_profile = this.baseURL+"/api/method/exone_api.masters.get_pos_profile_and_printer_configs";
+          axios.get(pos_profile, 
+          { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
+          ).then(result => {
+              //console.log(result.data.message);
+              let pos = result.data.message;
+              const jsonPos= JSON.stringify(pos, null, 2); // Pretty print JSON
+              localStorage.setItem('pos',jsonPos)
+          });
+
+          
+
           router.push("/dashboard");
         }
         }).catch(error => {

@@ -8,20 +8,20 @@
           <span class="p-1">{{ $t('Sales') }}</span>
           <div class="actions">
             <button @click="save" class="btn save">
-              <img src="../assets/save.svg" width="40" alt="">
-            {{ $t('save') }}
+              <img src="../assets/save.svg" class="inline-block p-1" width="25" alt="">{{ $t('save') }} 
+            
           </button>
           <button @click="print" class="btn print">
-              <img src="../assets/print.svg" width="40" alt="">
+              <img src="../assets/print.svg" class="inline-block p-1" width="25" alt="">
               {{ $t('print') }}
           </button>
           <button @click="clear" class="btn clear">
-              <img src="../assets/clear.svg" width="40" alt="">
+              <img src="../assets/clear.svg" class="inline-block p-1" width="25" alt="">
               {{ $t('clear') }}
           </button>
 
           <button @click="cancel" class="btn cancel">
-            <img src="../assets/close.svg" width="40" alt="">
+            <img src="../assets/close.svg" class="inline-block p-1" width="25" alt="">
               {{ $t('cancel') }}
           </button>
           </div>
@@ -31,7 +31,7 @@
               <td width="10%"><span class="p-1">{{ $t('invoiceNo') }}</span></td>
               <td width="10%"><input type="text" v-model="invoiceNo" @keydown.enter="focusNext($event)" /></td>
               <td width="10%" class="text-right"><span class="p-1">{{ $t('salesDate') }}</span></td>
-              <td width="20%"><input type="date" v-model="salesDate" @keydown.enter="focusNext($event)" /></td>
+              <td width="20%"><input type="text" v-model="salesDate" @keydown.enter="focusNext($event)" /></td>
               <td width="50%"></td>
             </tr>
 
@@ -61,10 +61,10 @@
             <tr>
               <th width="10%">{{ $t('code') }}</th>
               <th width="25%">{{ $t('name') }}</th>
-              <th width="10%">{{ $t('secondName') }}</th>
+              <th width="12%">{{ $t('secondName') }}</th>
               <th width="5%">{{ $t('tax') }}</th>
               <th width="5%">{{ $t('qty') }}</th>
-              <th width="7%">{{ $t('uom') }}</th>
+              <th width="5%">{{ $t('uom') }}</th>
               <th width="5%">{{ $t('sRate') }}</th>
               <th width="10%">{{ $t('grossAmt') }}</th>
               <th width="7%">{{ $t('netAmt') }}</th>
@@ -78,10 +78,13 @@
               <td>
                 <input 
                   type="text" 
-                  v-model="item.code" 
-                  @keydown.enter="selectItem(item, index)" 
-                  @input="searchItems($event.target.value, index, 'code')" 
+                  v-model="item.code"
+                  :ref="`code-${index}`" 
+                  @keydown="handleKeyNavigation($event, index)"
+                  @keydown.enter="focusNext($event,index, 'code')" 
+                  @input="searchItems($event.target.value, index, 'code')"
                 />
+                
                 <div v-if="item.suggestions.length && element === 'name'" class="suggestions-dropdown">
                   <table>
                     <thead>
@@ -94,7 +97,10 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="suggestion in item.suggestions" :key="suggestion.id" @click="selectSuggestion(suggestion, index)">
+                      <tr v-for="(suggestion, sIndex) in item.suggestions" 
+                          :key="suggestion.id" 
+                          :class="{ highlighted: sIndex === item.highlightedIndex }"
+                          @click="selectSuggestion(suggestion, index)">
                         <td>{{ suggestion.code }}</td>
                         <td>{{ suggestion.name }}</td>
                         <td>{{ suggestion.sellingPrice }}</td>
@@ -106,11 +112,19 @@
                 </div>
               </td>
               <td class="items-td">
-                <input 
+                <!-- <input 
                   type="text" 
                   v-model="item.name" 
                   :ref="`name-${index}`"
                   @keydown.enter="focusNext($event, index, 'name')" 
+                  @input="searchItems($event.target.value, index, 'name')" 
+                /> -->
+                <input 
+                  type="text" 
+                  v-model="item.name" 
+                  :ref="`name-${index}`"
+                  @keydown="handleKeyNavigation($event, index)"
+                  @keydown.enter="focusNext($event)" 
                   @input="searchItems($event.target.value, index, 'name')" 
                 />
                 <div v-if="item.suggestions.length && element === 'code'" class="suggestions-dropdown">
@@ -125,7 +139,12 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="suggestion in item.suggestions" :key="suggestion.id" @click="selectSuggestion(suggestion, index)">
+                      <tr 
+                          v-for="(suggestion, sIndex) in item.suggestions" 
+                          :key="suggestion.id" 
+                          :class="{ highlighted: sIndex === item.highlightedIndex }"
+                          @click="selectSuggestion(suggestion, index)"
+                        >
                         <td>{{ suggestion.code }}</td>
                         <td>{{ suggestion.name }}</td>
                         <td>{{ suggestion.sellingPrice }}</td>
@@ -149,7 +168,7 @@
             </tr>
           </tbody>
         </table>
-        <button @click="deleteAllRows" class="p-2">{{ $t('deleteAllRows') }}</button>
+        <!-- <button @click="deleteAllRows" class="p-2">{{ $t('deleteAllRows') }}</button> -->
         <div class="footer">
 
           <div class="form-group flex justify-start w-half">
@@ -194,16 +213,16 @@
             </div>
           </div>
         </div>
-        <div class="form-row">
+        <!-- <div class="form-row">
           <label>{{ $t('warehouse') }}</label>
           <select v-model="warehouse" @keydown.enter="focusNext($event)">
             <option>{{ $t('genWarehouse') }}</option>
           </select>
-        </div>
-        <div class="form-row">
+        </div> -->
+        <!-- <div class="form-row">
           <label>{{ $t('remarks') }}</label>
           <textarea v-model="remarks" @keydown.enter="focusNext($event)"></textarea>
-        </div>
+        </div> -->
         <div class="balance">
           <span>{{ $t('balance') }}:</span>
           <span>{{ (customerBalance || 0).toFixed(2) }}</span>
@@ -214,9 +233,11 @@
 </template>
 
 <script>
- import jsonProducts from '../database/items.json';
- import config from '../database/config.json';
+ 
 import HeaderNav from "../components/HeaderNav.vue";
+import axios from "axios";
+import moment from 'moment'
+
 
 export default {
   components: {
@@ -224,10 +245,10 @@ export default {
   },
   data() {
     return {
-      baseURL:config.settings.baseURL,
-      jsonProducts:jsonProducts,
+      baseURL:localStorage.getItem('baseURL') ?? "",
+      pos : localStorage.getItem('pos'),
       invoiceNo: 7,
-      salesDate: '2024-07-12',
+      salesDate: moment(new Date()).format('DD-MM-YYYY'),
       salesmanQuery: '',
       salesmanSuggestions: [],
       customerQuery: '',
@@ -248,6 +269,7 @@ export default {
           uom: '',
           sRate: 0,
           suggestions: [],
+          highlightedIndex: -1,
           get grossAmt() {
             return this.qty * this.sRate;
           },
@@ -260,8 +282,10 @@ export default {
           get total() {
             return this.netAmt + this.vatAmt;
           },
+          
         },
       ],
+      highlightedIndices: [],
       discount: 0.00,
       charges: 0.00,
       roundOff: 0.00,
@@ -283,20 +307,22 @@ export default {
     async fetchItems() {
       try {
         //const response = await fetch('https://dummyjson.com/products');
-      
-        const data = jsonProducts;
+        //const data = localStorage.getItem('items');
+        const data = JSON.parse(localStorage.getItem('items'))
+        console.log('fetch from storage');
+        console.log(data);
 
-        this.availableItems = data.products.map(item => ({
-          code: item.sku,
-          name: item.name,
-          secondName: item.arabic_name,
-          tax: 15,
+        this.availableItems = data.items.map(item => ({
+          code: item.item_code,
+          name: item.item_name,
+          secondName: item.item_name_arabic,
+          tax: item?.tax_details?.tax_rate ?? 15,
           qty: 1,
           uom: 'Nos',
-          sRate: item.price,
-          sellingPrice: item.price,
-          purchasePrice: item.price * 0.8,  // Assuming purchase price is 80% of selling price for demo
-          stock: item.stock
+          sRate: item.standard_rate,
+          sellingPrice: item.standard_rate,
+          purchasePrice: item.standard_rate * 0.8,  // Assuming purchase price is 80% of selling price for demo
+          stock: item.is_stock_item
         }));
       } catch (error) {
         console.error('Error fetching items:', error);
@@ -312,12 +338,10 @@ export default {
         //const data = await response.json();
 
         //console.log(data);
-        this.customers = users.map(user => (
+        this.customers = users.data.map(user => (
           {
-            id: user.id,
-            name: user.name,
-            code: user.naming_series, // Assuming username is used as customer code for demo purposes
-            address: user.addresses.length > 0 ? user.addresses[0].address_line1 +','+ user.addresses[0].address_line2  : "",
+            name: user.customer_name,
+            code: user.name,
             balance: user.balance,
             customer_type:user.custom_b2c
           }
@@ -369,19 +393,62 @@ export default {
       }
     },
     selectCustomer(suggestion) {
-      this.customer = {
-        name: suggestion.name,
-        address: suggestion.address,
-      };
-      this.customerCodeQuery = suggestion.code;
-      this.customerQuery = suggestion.name;
-      this.customerBalance = suggestion.balance;
-      this.customerSuggestions = [];
+
+      let address_url = this.baseURL+`/api/resource/Address?filters=[["Dynamic Link","link_doctype","=","Customer"],["Dynamic Link","link_name","=","${suggestion.name}"]]&fields=["name","address_title","address_line1","address_line2"]`;
+          axios.get(address_url, 
+          { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
+          ).then(result => {
+              //console.log(result.data.message);
+              let addresses = result.data.data;
+              console.log(addresses);
+              let address = "";
+              if(addresses.length > 0)
+              {
+                address = addresses[0].name+"\n"+addresses[0].address_title+"\n"+addresses[0].address_line1
+              }
+              this.customer = {
+                name: suggestion.name,
+                address: address,
+              };
+              this.customerCodeQuery = suggestion.code;
+              this.customerQuery = suggestion.name;
+              this.customerBalance = suggestion.balance;
+              this.customerSuggestions = [];
+          });
+          
+      
     },
     selectSalesman(suggestion) {
       this.salesmanQuery = suggestion.name;
       this.salesmanSuggestions = [];
     },
+
+    handleKeyNavigation(event, index) {
+    const item = this.items[index];
+    const suggestionsLength = item.suggestions.length;
+
+    if (suggestionsLength === 0) {
+      return;
+    }
+    switch (event.key) {
+      case 'ArrowDown':
+        item.highlightedIndex = (item.highlightedIndex + 1) % suggestionsLength;
+        break;
+      case 'ArrowUp':
+        item.highlightedIndex = (item.highlightedIndex - 1 + suggestionsLength) % suggestionsLength;
+        break;
+      case 'Enter':
+        if (item.highlightedIndex >= 0) {
+          this.selectSuggestion(item.suggestions[item.highlightedIndex], index);
+        }
+        break;
+      default:
+        return; // Exit this handler for other keys
+    }
+
+    event.preventDefault(); // Prevent the default action, such as scrolling
+  },
+    
     searchItems(query, index, el) {
       if (query.length > 1) {
         if (el === 'name') {
@@ -399,24 +466,30 @@ export default {
         this.items[index].suggestions = [];
       }
     },
+ 
     selectSuggestion(suggestion, index) {
-      this.items[index] = {
-        ...suggestion,
-        suggestions: [],
-        get grossAmt() {
-          return this.qty * this.sRate;
-        },
-        get netAmt() {
-          return this.grossAmt;
-        },
-        get vatAmt() {
-          return this.grossAmt * this.tax / 100;
-        },
-        get total() {
-          return this.netAmt + this.vatAmt;
-        },
-      };
-      this.addNewRow();
+    this.items[index] = {
+      ...suggestion,
+      suggestions: [],
+      highlightedIndex: -1, // Reset the highlighted index
+      get grossAmt() {
+        return this.qty * this.sRate;
+      },
+      get netAmt() {
+        return this.grossAmt;
+      },
+      get vatAmt() {
+        return this.grossAmt * this.tax / 100;
+      },
+      get total() {
+        return this.netAmt + this.vatAmt;
+      },
+    };
+    this.addNewRow();
+    this.focusCode()
+  },
+    focusCode(){
+      
     },
     addNewRow() {
       this.items.push({
@@ -428,6 +501,7 @@ export default {
         uom: '',
         sRate: 0,
         suggestions: [],
+        highlightedIndex: -1,
         get grossAmt() {
           return this.qty * this.sRate;
         },
@@ -440,7 +514,9 @@ export default {
         get total() {
           return this.netAmt + this.vatAmt;
         },
+        
       });
+      
     },
     updateTotals() {
       // Automatically updates the grand total when discount is applied
@@ -449,64 +525,53 @@ export default {
     async save() {
       try {
             // 1. Gather the invoice data
+            let items = this.items.map(function(item){
+                  if(item.code!=""){
+                    return {
+                      item_code: item.code,
+                      qty: item.qty,
+                      rate: item.sRate
+                    }
+                  }
+                    
+              });
+              var filtered = items.filter(function (el) {
+                return el != null;
+              });
+              
             const invoiceData = {
                 // Prepare data according to ERPNext Sales Invoice DocType
+                
                 customer: this.customer.name,
-                posting_date: this.salesDate,
-                items: this.items.map(item => ({
-                    item_code: item.code,
-                    qty: item.qty,
-                    rate: item.sRate,
-                    uom: item.uom,
-                    tax: item.tax,
-                })),
-                discount_amount: this.discount,
-                additional_charges: this.charges,
-                round_off_amount: this.roundOff,
-                remarks: this.remarks,
-                warehouse: this.warehouse,
-                grand_total: this.grandTotal,
+                due_date:moment(new Date()).format('YYYY-MM-DD'),
+                posting_date:moment(new Date()).format('YYYY-MM-DD'),
+                company:(this.pos.pos_profiles.length > 0) ? this.pos.pos_profiles[0].company : "Exone Technologies",
+                is_pos:1,
+                currency:"SAR",
+                exchange_rate:"22",
+                items : filtered
+                
             };
 
-            // 2. Create Sales Invoice in ERPNext
-            const erpResponse = await fetch('/api/resource/Sales Invoice', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    //'Authorization': `token ${YOUR_ERPNext_API_TOKEN}`, // Replace with your ERPNext API Token
-                },
-                body: JSON.stringify(invoiceData),
-            });
 
-            if (!erpResponse.ok) {
+          let sendToERPNext=this.baseURL+"/api/resource/Sales Invoice";
+          axios.defaults.headers.post['Content-Type'] = 'application/json';
+          axios.defaults.headers.post['Authorization'] = `Basic ${localStorage.getItem('token')}`;
+       
+          axios.post(sendToERPNext, invoiceData).then(erpResponse => {
+
+            console.log(erpResponse.data);
+  
+            if (!erpResponse.data) {
                 throw new Error('Error saving invoice in ERPNext.');
             }
 
-            const erpResult = await erpResponse.json();
-
-            // 3. Send data to ZATCA
-            const zatcaResponse = await fetch('YOUR_ZATCA_API_ENDPOINT', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    //'Authorization': `Bearer ${YOUR_ZATCA_TOKEN}`, // Replace with your ZATCA Token
-                },
-                body: JSON.stringify({
-                    invoiceData,
-                    erpReference: erpResult.data.name, // ERPNext invoice ID
-                }),
-            });
-
-            if (!zatcaResponse.ok) {
-                throw new Error('Error sending invoice to ZATCA.');
-            }
-
-            //const zatcaResult = await zatcaResponse.json();
-
-            // 4. Print the invoice
+            const erpResult = erpResponse.json();
             this.printInvoice(erpResult.data.name);
 
             alert('Invoice saved in ERPNext and sent to ZATCA successfully!');
+          });
+            
         } catch (error) {
             console.error('Error during save process:', error);
             alert('Failed to save the invoice. Please try again.');
@@ -531,19 +596,31 @@ export default {
     },
     focusNext(event, index, field) {
       event.preventDefault();
-      if (field === 'qty' && index < this.items.length - 1) {
-        this.$refs[`name-${index + 1}`][0].focus();
+      
+      if(field=='code' && this.items[index]['code']=="")
+      {
+        const form = event.target.form;
+        const index = Array.prototype.indexOf.call(form, event.target);
+        form.elements[index].focus();
+      }else{
+        if (field === 'qty' && index < this.items.length - 1) {
+        this.$refs[`code-${index + 1}`][0].focus();
       } else {
         const form = event.target.form;
         const index = Array.prototype.indexOf.call(form, event.target);
         form.elements[index + 1].focus();
       }
+      }
+      
+      
     },
   },
   mounted() {
     this.fetchItems();
     this.fetchCustomers();
     this.fetchSalesmen();
+    const data = JSON.parse(localStorage.getItem('pos'))
+    this.pos = data
   },
 };
 </script>

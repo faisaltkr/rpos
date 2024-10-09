@@ -1,50 +1,46 @@
 <template>
   <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-5/6 h-screen overflow-hidden">
-    <HeaderNav />
+    <HeaderNav/>
     
     <form @submit.prevent>
       <div class="sales-form">
         <div class="header">
-          <span class="p-1">{{ $t('dashboard') }}</span>
+          <span class="p-1">{{ $t('Sales') }}</span>
           <div class="actions">
             <button @click="save" class="btn save">
-              <img src="public/images/floppy-disk.png" alt="">
-            {{ $t('save') }}
+              <img src="../assets/save.svg" class="inline-block p-1" width="25" alt="">{{ $t('save') }} 
+            
           </button>
           <button @click="print" class="btn print">
-              <img src="public/images/printer.png" alt="">
-            {{ $t('Print') }}
+              <img src="../assets/print.svg" class="inline-block p-1" width="25" alt="">
+              {{ $t('print') }}
           </button>
-            <button @click="clear" class="btn clear">{{ $t('clear') }}</button>
-            <button @click="cancel" class="btn cancel">{{ $t('cancel') }}</button>
+          <button @click="clear" class="btn clear">
+              <img src="../assets/clear.svg" class="inline-block p-1" width="25" alt="">
+              {{ $t('clear') }}
+          </button>
+
+          <button @click="cancel" class="btn cancel">
+            <img src="../assets/close.svg" class="inline-block p-1" width="25" alt="">
+              {{ $t('cancel') }}
+          </button>
           </div>
         </div>
-        <table class="table-noborder">
-          <tr>
-            <td><span class="p-1">{{ $t('invoiceNo') }}</span></td>
-            <td><input type="text" v-model="invoiceNo" @keydown.enter="focusNext($event)" /></td>
-            <td width="10%"><span class="p-1">{{ $t('salesDate') }}</span></td>
-            <td width="50%">
-                <input type="date" v-model="salesDate" @keydown.enter="focusNext($event)" />
-            </td>
-            
+        <table width="100%" class="table-noborder">
+            <tr>
+              <td width="10%"><span class="p-1">{{ $t('invoiceNo') }}</span></td>
+              <td width="10%"><input type="text" v-model="invoiceNo" @keydown.enter="focusNext($event)" /></td>
+              <td width="10%" class="text-right"><span class="p-1">{{ $t('salesDate') }}</span></td>
+              <td width="20%"><input type="date" v-model="salesDate" @keydown.enter="focusNext($event)" /></td>
+              <td width="50%"></td>
+            </tr>
 
-          </tr>
-          <tr>
-            <td><span class="p-1">{{ $t('customer') }}</span></td>
-            <td width="10">
-            <input placeholder="Type Code" type="text" 
-              v-model="customerCodeQuery" 
-              @input="searchCustomers" 
-              @keydown.enter="focusNext($event)" 
-            />
-            <input 
-              placeholder="Type Name"
-              type="text" 
-              v-model="customerQuery" 
-              @input="searchCustomers" 
-              @keydown.enter="focusNext($event)" 
-            />
+            <tr>
+              <td width="10%"><span class="p-1">{{ $t('customer') }}</span></td>
+              <td width="10%"><input placeholder="Search Code" type="text" v-model="customerCodeQuery" 
+              @input="searchCustomers" @keydown.enter="focusNext($event)"/>
+              <br><hr>
+              <input placeholder="Search Customer" type="text" v-model="customerQuery"  @input="searchCustomers" @keydown.enter="focusNext($event)" />
             <ul v-if="customerSuggestions.length" class="suggestions-dropdown">
               <li 
                 v-for="suggestion in customerSuggestions" 
@@ -52,28 +48,29 @@
                 @click="selectCustomer(suggestion)">
                 {{ suggestion.code }} - {{ suggestion.name }}
               </li>
-            </ul></td>
-            <td><span class="p-1">{{ $t('address') }}</span></td>
-            <td width="50">
-              <textarea class="address"  v-model="customer.address" @keydown.enter="focusNext($event)" />
+            </ul>
             </td>
-          </tr>
+              <td width="10%" class="text-right"><span class="p-1">{{ $t('address') }}</span></td>
+              <td width="20%"><textarea class="address" v-model="customer.address" @keydown.enter="focusNext($event)" /></td>
+            </tr>
+        </table>
 
-      </table>
+
         <table class="table-auto overflow-scroll grid-table">
           <thead>
             <tr>
               <th width="10%">{{ $t('code') }}</th>
               <th width="25%">{{ $t('name') }}</th>
-              <th width="10%">{{ $t('secondName') }}</th>
+              <th width="12%">{{ $t('secondName') }}</th>
               <th width="5%">{{ $t('tax') }}</th>
               <th width="5%">{{ $t('qty') }}</th>
-              <th width="7%">{{ $t('uom') }}</th>
+              <th width="5%">{{ $t('uom') }}</th>
               <th width="5%">{{ $t('sRate') }}</th>
               <th width="10%">{{ $t('grossAmt') }}</th>
               <th width="7%">{{ $t('netAmt') }}</th>
               <th width="6%">{{ $t('vatAmt') }}</th>
-              <th width="10%">{{ $t('total') }}</th>
+              <th width="5%">{{ $t('total') }}</th>
+              <th>Close</th>
             </tr>
           </thead>
           <tbody>
@@ -85,6 +82,7 @@
                   @keydown.enter="selectItem(item, index)" 
                   @input="searchItems($event.target.value, index, 'code')" 
                 />
+                
                 <div v-if="item.suggestions.length && element === 'name'" class="suggestions-dropdown">
                   <table>
                     <thead>
@@ -109,11 +107,18 @@
                 </div>
               </td>
               <td class="items-td">
-                <input 
+                <!-- <input 
                   type="text" 
                   v-model="item.name" 
                   :ref="`name-${index}`"
                   @keydown.enter="focusNext($event, index, 'name')" 
+                  @input="searchItems($event.target.value, index, 'name')" 
+                /> -->
+                <input 
+                  type="text" 
+                  v-model="item.name" 
+                  :ref="`name-${index}`"
+                  @keydown="handleKeyNavigation($event, index)" 
                   @input="searchItems($event.target.value, index, 'name')" 
                 />
                 <div v-if="item.suggestions.length && element === 'code'" class="suggestions-dropdown">
@@ -128,7 +133,12 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="suggestion in item.suggestions" :key="suggestion.id" @click="selectSuggestion(suggestion, index)">
+                      <tr 
+                          v-for="(suggestion, sIndex) in item.suggestions" 
+                          :key="suggestion.id" 
+                          :class="{ highlighted: sIndex === item.highlightedIndex }"
+                          @click="selectSuggestion(suggestion, index)"
+                        >
                         <td>{{ suggestion.code }}</td>
                         <td>{{ suggestion.name }}</td>
                         <td>{{ suggestion.sellingPrice }}</td>
@@ -148,6 +158,7 @@
               <td>{{ (item.netAmt || 0).toFixed(2) }}</td>
               <td>{{ (item.vatAmt || 0).toFixed(2) }}</td>
               <td>{{ (item.total || 0).toFixed(2) }}</td>
+              <td><button @click="removeItem(index)"><img src="../assets/close-black.svg" width="15" alt=""></button></td>
             </tr>
           </tbody>
         </table>
@@ -216,7 +227,10 @@
 </template>
 
 <script>
+ 
+ import config from '../database/config.json';
 import HeaderNav from "../components/HeaderNav.vue";
+import { ref, reactive } from 'vue';
 
 export default {
   components: {
@@ -224,6 +238,7 @@ export default {
   },
   data() {
     return {
+      baseURL:config.settings.baseURL,
       invoiceNo: 7,
       salesDate: '2024-07-12',
       salesmanQuery: '',
@@ -246,6 +261,7 @@ export default {
           uom: '',
           sRate: 0,
           suggestions: [],
+          highlightedIndex: -1,
           get grossAmt() {
             return this.qty * this.sRate;
           },
@@ -260,6 +276,7 @@ export default {
           },
         },
       ],
+      highlightedIndices: [],
       discount: 0.00,
       charges: 0.00,
       roundOff: 0.00,
@@ -280,20 +297,26 @@ export default {
   methods: {
     async fetchItems() {
       try {
-        const response = await fetch('https://dummyjson.com/products');
-        const data = await response.json();
+        //const response = await fetch('https://dummyjson.com/products');
 
-        this.availableItems = data.products.map(item => ({
-          code: item.sku,
-          name: item.title,
-          secondName: item.category,
-          tax: 15,
+        
+      
+        //const data = localStorage.getItem('items');
+        const data = JSON.parse(localStorage.getItem('items'))
+        console.log('fetch from storage');
+        console.log(data);
+
+        this.availableItems = data.items.map(item => ({
+          code: item.item_code,
+          name: item.item_name,
+          secondName: item.item_name_arabic,
+          tax: item?.tax_details?.tax_rate ?? 15,
           qty: 1,
           uom: 'Nos',
-          sRate: item.price,
-          sellingPrice: item.price,
-          purchasePrice: item.price * 0.8,  // Assuming purchase price is 80% of selling price for demo
-          stock: item.stock
+          sRate: item.standard_rate,
+          sellingPrice: item.standard_rate,
+          purchasePrice: item.standard_rate * 0.8,  // Assuming purchase price is 80% of selling price for demo
+          stock: item.is_stock_item
         }));
       } catch (error) {
         console.error('Error fetching items:', error);
@@ -301,29 +324,42 @@ export default {
     },
     async fetchCustomers() {
       try {
-        const response = await fetch('https://dummyjson.com/users'); // Replace with your actual API endpoint
-        const data = await response.json();
+        const users = JSON.parse(localStorage.getItem('customers'))
 
-        this.customers = data.users.map(user => ({
-          id: user.id,
-          name: `${user.firstName} ${user.lastName}`,
-          code: user.ssn, // Assuming username is used as customer code for demo purposes
-          address: user.address.address,
-          balance: user.balance,
-        }));
+        console.log(users);
+        //const response = await fetch('https://dummyjson.com/users'); // Replace with your actual API endpoint
+        //const response = await fetch('');
+        //const data = await response.json();
+
+        //console.log(data);
+        this.customers = users.map(user => (
+          {
+            id: user.id,
+            name: user.name,
+            code: user.naming_series, // Assuming username is used as customer code for demo purposes
+            address: user.addresses.length > 0 ? user.addresses[0].address_line1 +','+ user.addresses[0].address_line2  : "",
+            balance: user.balance,
+            customer_type:user.custom_b2c
+          }
+      ));
       } catch (error) {
         console.error('Error fetching customers:', error);
       }
     },
     async fetchSalesmen() {
       try {
-        const response = await fetch('https://dummyjson.com/users'); // Replace with your actual API endpoint
-        const data = await response.json();
+        //const response = await fetch('https://dummyjson.com/users'); // Replace with your actual API endpoint
+        
+        //const data = await response.json();
 
-        this.salesmen = data.users.map(user => ({
-          id: user.id,
-          name: `${user.firstName} ${user.lastName}`,
-        }));
+        // const data = localStorage.getItem('pos_profile')
+
+        // this.salesmen = data.map(pos => ({
+        //   name: pos.name,
+        //   payment_methods : pos.payment_methods.map(payment => ({
+        //      mode_of_payment : payment.mode_of_payment
+        //   }))
+        //}));
       } catch (error) {
         console.error('Error fetching salesmen:', error);
       }
@@ -366,66 +402,120 @@ export default {
       this.salesmanQuery = suggestion.name;
       this.salesmanSuggestions = [];
     },
-    searchItems(query, index, el) {
-      if (query.length > 1) {
-        if (el === 'name') {
-          this.items[index].suggestions = this.availableItems.filter(item =>
-            item.name.toLowerCase().includes(query.toLowerCase())
-          );
-          this.element = "code";
-        } else {
-          this.items[index].suggestions = this.availableItems.filter(item =>
-            item.code.toLowerCase().includes(query.toLowerCase())
-          );
-          this.element = 'name';
+
+    handleKeyNavigation(event, index) {
+    const item = this.items[index];
+    const suggestionsLength = item.suggestions.length;
+
+    if (suggestionsLength === 0) {
+      return;
+    }
+
+    if (this.highlightedIndices[index] === undefined) {
+      this.$set(this.highlightedIndices, index, -1); // Ensure highlighted index is initialized
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+        this.highlightedIndices[index] = (this.highlightedIndices[index] + 1) % suggestionsLength;
+        break;
+      case 'ArrowUp':
+        this.highlightedIndices[index] = (this.highlightedIndices[index] - 1 + suggestionsLength) % suggestionsLength;
+        break;
+      case 'Enter':
+        if (this.highlightedIndices[index] >= 0) {
+          this.selectSuggestion(item.suggestions[this.highlightedIndices[index]], index);
         }
+        break;
+      default:
+        return; // Exit this handler for other keys
+    }
+
+    event.preventDefault(); // Prevent the default action, such as scrolling
+  },
+    
+  searchItems(query, index, el) {
+    if (query.length > 1) {
+      if (el === 'name') {
+        this.items[index].suggestions = this.availableItems.filter(item =>
+          item.name.toLowerCase().includes(query.toLowerCase())
+        );
+        this.element = "code";
       } else {
-        this.items[index].suggestions = [];
+        this.items[index].suggestions = this.availableItems.filter(item =>
+          item.code.toLowerCase().includes(query.toLowerCase())
+        );
+        this.element = 'name';
       }
-    },
+      this.$set(this.highlightedIndices, index, -1); // Properly initialize highlighted index for the row
+    } else {
+      this.items[index].suggestions = [];
+    }
+  },
+    // selectSuggestion(suggestion, index) {
+    //   this.items[index] = {
+    //     ...suggestion,
+    //     suggestions: [],
+    //     get grossAmt() {
+    //       return this.qty * this.sRate;
+    //     },
+    //     get netAmt() {
+    //       return this.grossAmt;
+    //     },
+    //     get vatAmt() {
+    //       return this.grossAmt * this.tax / 100;
+    //     },
+    //     get total() {
+    //       return this.netAmt + this.vatAmt;
+    //     },
+    //   };
+    //   this.addNewRow();
+    // },
     selectSuggestion(suggestion, index) {
-      this.items[index] = {
-        ...suggestion,
-        suggestions: [],
-        get grossAmt() {
-          return this.qty * this.sRate;
-        },
-        get netAmt() {
-          return this.grossAmt;
-        },
-        get vatAmt() {
-          return this.grossAmt * this.tax / 100;
-        },
-        get total() {
-          return this.netAmt + this.vatAmt;
-        },
-      };
-      this.addNewRow();
-    },
-    addNewRow() {
-      this.items.push({
-        code: '',
-        name: '',
-        secondName: '',
-        tax: 0,
-        qty: 1,
-        uom: '',
-        sRate: 0,
-        suggestions: [],
-        get grossAmt() {
-          return this.qty * this.sRate;
-        },
-        get netAmt() {
-          return this.grossAmt;
-        },
-        get vatAmt() {
-          return this.grossAmt * this.tax / 100;
-        },
-        get total() {
-          return this.netAmt + this.vatAmt;
-        },
-      });
-    },
+    this.items[index] = {
+      ...suggestion,
+      suggestions: [],
+      highlightedIndex: -1, // Reset the highlighted index
+      get grossAmt() {
+        return this.qty * this.sRate;
+      },
+      get netAmt() {
+        return this.grossAmt;
+      },
+      get vatAmt() {
+        return this.grossAmt * this.tax / 100;
+      },
+      get total() {
+        return this.netAmt + this.vatAmt;
+      },
+    };
+    this.addNewRow();
+  },
+  addNewRow() {
+    this.items.push({
+      code: '',
+      name: '',
+      secondName: '',
+      tax: 0,
+      qty: 1,
+      uom: '',
+      sRate: 0,
+      suggestions: [],
+      get grossAmt() {
+        return this.qty * this.sRate;
+      },
+      get netAmt() {
+        return this.grossAmt;
+      },
+      get vatAmt() {
+        return this.grossAmt * this.tax / 100;
+      },
+      get total() {
+        return this.netAmt + this.vatAmt;
+      },
+    });
+    this.$set(this.highlightedIndices, this.items.length - 1, -1); // Initialize highlighted index for the new row
+  },
     updateTotals() {
       // Automatically updates the grand total when discount is applied
       this.grandTotal;
@@ -453,11 +543,11 @@ export default {
             };
 
             // 2. Create Sales Invoice in ERPNext
-            const erpResponse = await fetch('/api/resource/Sales Invoice', {
+            const erpResponse = await fetch(this.baseURL+'/api/resource/Sales Invoice', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    //'Authorization': `token ${YOUR_ERPNext_API_TOKEN}`, // Replace with your ERPNext API Token
+                    'Authorization': `Basic ${localStorage.getItem('token')}`, // Replace with your ERPNext API Token
                 },
                 body: JSON.stringify(invoiceData),
             });
@@ -510,6 +600,9 @@ export default {
     deleteAllRows() {
       this.items = [];
     },
+    removeItem(index) {
+      this.items.splice(index, 1);
+    },
     focusNext(event, index, field) {
       event.preventDefault();
       if (field === 'qty' && index < this.items.length - 1) {
@@ -557,9 +650,7 @@ export default {
 .suggestions-dropdown ul, .suggestions-dropdown table tbody tr td {
   cursor: pointer;
 }
-.address{
-  width: 50% !important;
-}
+
 .discount{
   width: 20% !important;
 }

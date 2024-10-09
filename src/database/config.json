@@ -1,6 +1,6 @@
 {
-    "settings":{
-        "baseURL":"http://192.168.8.20:8005",
-        "customer":"ABC Company"
+    "settings": {
+        "baseURL": "http://157.90.156.102:8005",
+        "customer": "ABC Company"
     }
 }
