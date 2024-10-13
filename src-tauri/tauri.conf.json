@@ -2,7 +2,7 @@
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run serve",
-    "devPath": "http://localhost:8080",
+    "devPath": "",
     "distDir": "../dist"
   },
   "package": {
@@ -55,7 +55,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 800,
         "resizable": true,
         "title": "NextDesk",
         "width": 800

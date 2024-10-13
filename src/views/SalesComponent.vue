@@ -1,5 +1,5 @@
 <template>
-  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-5/6 h-screen overflow-hidden">
+  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-full h-screen overflow-hidden">
     <HeaderNav/>
     
     <form @submit.prevent>
@@ -7,7 +7,7 @@
         <div class="header">
           <span class="p-1">{{ $t('Sales') }}</span>
           <div class="actions">
-            <button @click="save" class="btn save">
+            <button id="save" ref="save" @click="save" class="btn save">
               <img src="../assets/save.svg" class="inline-block p-1" width="25" alt="">{{ $t('save') }} 
             
           </button>
@@ -20,9 +20,9 @@
               {{ $t('clear') }}
           </button>
 
-          <button @click="cancel" class="btn cancel">
+          <button @click="reload" class="btn cancel">
             <img src="../assets/close.svg" class="inline-block p-1" width="25" alt="">
-              {{ $t('cancel') }}
+              {{ $t('reload') }}
           </button>
           </div>
         </div>
@@ -206,6 +206,11 @@
               <span>{{ $t('roundOff') }}:</span>
               <span>{{ (roundOff || 0).toFixed(2) }}</span>
             </div>
+
+            <div class="total-row">
+              <span>{{ $t('totalVat') }}:</span>
+              <span>{{ totalVat.toFixed(2) }}</span>
+            </div>
             
             <div class="total-row grand-total">
               <span>{{ $t('grandTotal') }}:</span>
@@ -236,7 +241,8 @@
  
 import HeaderNav from "../components/HeaderNav.vue";
 import axios from "axios";
-import moment from 'moment'
+import moment from 'moment';
+//const { ThermalPrinter, PrinterTypes, CharacterSet, BreakLine } = require('node-thermal-printer');
 
 
 export default {
@@ -247,7 +253,7 @@ export default {
     return {
       baseURL:localStorage.getItem('baseURL') ?? "",
       pos : localStorage.getItem('pos'),
-      invoiceNo: 7,
+      invoiceNo: "",
       salesDate: moment(new Date()).format('DD-MM-YYYY'),
       salesmanQuery: '',
       salesmanSuggestions: [],
@@ -302,6 +308,10 @@ export default {
       const totalBeforeDiscount = this.items.reduce((sum, item) => sum + (item.total || 0), 0) + (this.roundOff || 0) + (this.charges || 0);
       return totalBeforeDiscount - (this.discount || 0);
     },
+    totalVat(){
+      const totalVatamt = this.items.reduce((sum, item) => sum + (item.vatAmt || 0), 0);
+      return totalVatamt;
+    }
   },
   methods: {
     async fetchItems() {
@@ -541,7 +551,6 @@ export default {
               
             const invoiceData = {
                 // Prepare data according to ERPNext Sales Invoice DocType
-                
                 customer: this.customer.name,
                 due_date:moment(new Date()).format('YYYY-MM-DD'),
                 posting_date:moment(new Date()).format('YYYY-MM-DD'),
@@ -550,7 +559,6 @@ export default {
                 currency:"SAR",
                 exchange_rate:"22",
                 items : filtered
-                
             };
 
 
@@ -559,34 +567,33 @@ export default {
           axios.defaults.headers.post['Authorization'] = `Basic ${localStorage.getItem('token')}`;
        
           axios.post(sendToERPNext, invoiceData).then(erpResponse => {
-
-            console.log(erpResponse.data);
-  
-            if (!erpResponse.data) {
-                throw new Error('Error saving invoice in ERPNext.');
-            }
-
-            const erpResult = erpResponse.json();
-            this.printInvoice(erpResult.data.name);
-
+            const erpResult = erpResponse.data.data;
+            console.log(erpResult);
+            //this.printInvoiceDirectly(erpResult);
+            this.invoiceNo = erpResult.name;
             alert('Invoice saved in ERPNext and sent to ZATCA successfully!');
+            this.clear()
           });
             
         } catch (error) {
             console.error('Error during save process:', error);
-            alert('Failed to save the invoice. Please try again.');
         }
     
     },
     printInvoice(invoiceId) {
         // Use ERPNext's built-in print format for invoices
-        window.open(`/printview?doctype=Sales Invoice&name=${invoiceId}&format=Standard&no_letterhead=0`, '_blank');
+        window.open(`http://dev14.erpx.one/printview?doctype=Sales Invoice&name=${invoiceId}&token=${localStorage.getItem('token')}&format=Standard&no_letterhead=0`, '_blank');
     },
     clear() {
-      alert('Clear clicked!');
+      this.input = "";
+      this.items = [];
+      window.location.reload();
     },
-    cancel() {
-      alert('Cancel clicked!');
+    print(){
+      this.printInvoice()
+    },
+    reload() {
+      window.location.reload();
     },
     deleteAllRows() {
       this.items = [];
@@ -596,8 +603,9 @@ export default {
     },
     focusNext(event, index, field) {
       event.preventDefault();
-      
-      if(field=='code' && this.items[index]['code']=="")
+      if(field=='code' && this.items[index]['code']=="" && this.items.length > 0){
+        this.$refs.save.focus()
+      }else if(field=='code' && this.items[index]['code']=="")
       {
         const form = event.target.form;
         const index = Array.prototype.indexOf.call(form, event.target);
@@ -614,6 +622,20 @@ export default {
       
       
     },
+
+  //  printInvoiceDirectly(invoiceData) {
+  //     let printer = new ThermalPrinter({
+  //       type: PrinterTypes.STAR,                                  // Printer type: 'star' or 'epson'
+  //       interface: 'tcp://xxx.xxx.xxx.xxx',                       // Printer interface
+  //       characterSet: CharacterSet.PC852_LATIN2,                  // Printer character set
+  //       removeSpecialCharacters: false,                           // Removes special characters - default: false
+  //       lineCharacter: "=",                                       // Set character for lines - default: "-"
+  //       breakLine: BreakLine.WORD,                                // Break line after WORD or CHARACTERS. Disabled with NONE - default: WORD
+  //       options:{                                                 // Additional options
+  //         timeout: 5000                                           // Connection timeout (ms) [applicable only for network printers] - default: 3000
+  //       }
+  //     });
+  //   }
   },
   mounted() {
     this.fetchItems();

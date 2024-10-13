@@ -77,6 +77,7 @@ export default {
           password:this.password
       }
         let url=this.baseURL+"/api/method/exone_api.auth.authenticate";
+        axios.defaults.headers.post['Accept'] = '*/*';
         axios.defaults.headers.post['Content-Type'] = 'application/json';
         axios.post(url, data).then(response => {
           //console.log(response.data.message);
@@ -105,7 +106,6 @@ export default {
               const jsonItems = JSON.stringify(items, null, 2); // Pretty print JSON
               localStorage.setItem('items',jsonItems)
           });
-
 
           //fetching pos profile
 

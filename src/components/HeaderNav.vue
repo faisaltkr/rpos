@@ -14,8 +14,8 @@
                   
                 </li>
                 <li><router-link to="/customer">Customer</router-link></li>
-                <li><a href="#">Receipt</a></li>
-                <li><a href="#">Report</a></li>
+                <li><router-link to="/pos">POS</router-link></li>
+                <li><router-link to="/report">Report</router-link></li>
               </ul>
             </nav>
           </div>

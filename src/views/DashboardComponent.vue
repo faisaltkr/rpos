@@ -1,5 +1,5 @@
 <template>
-  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-5/6 h-screen overflow-hidden">
+  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-100 h-screen overflow-hidden">
     <HeaderNav />
     
     <div class="dashboard grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
@@ -61,7 +61,7 @@ export default {
   },
   data() {
     return {
-      baseURL:localStorage.getItem('baseURL'),
+      baseURL: localStorage.getItem('baseURL'),
       totalSales: 0,
       salesToday: 0,
       totalCustomers: 0,

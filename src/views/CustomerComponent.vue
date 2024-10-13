@@ -1,6 +1,6 @@
 <template>
  
-  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-5/6 h-screen overflow-hidden">
+  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-full h-screen overflow-hidden">
     <HeaderNav />
   
 

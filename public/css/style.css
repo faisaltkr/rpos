@@ -18,7 +18,7 @@
 .window {
   padding: 0rem;
   background-color: #e7eef6;
-  margin-left: 8%;
+  /*margin-left: 8%;*/
 }
 
 
@@ -285,3 +285,10 @@ table input:focus {
 .suggestions-dropdown .highlighted {
   background-color: #d3d3d3; /* Light gray color for highlighting */
 }
+
+.h-screen {
+  height: 100vh;
+  }
+  .overflow-y-auto {
+  overflow-y: auto;
+  }

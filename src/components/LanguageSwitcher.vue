@@ -1,23 +1,30 @@
 <template>
-  <div>
-    <button @click="switchLanguage('en')">English</button>
-    <button @click="switchLanguage('ar')">العربية</button>
+  <div class="grid grid-cols-4 gap-4">
+    <div
+      v-for="item in items"
+      :key="item.id"
+      class="p-4 bg-gray-800 rounded-lg shadow cursor-pointer hover:bg-gray-700"
+      @click="$emit('add-to-cart', item)"
+    >
+      <h3 class="text-lg font-semibold">{{ item.name }}</h3>
+      <p class="text-sm text-gray-500">{{ item.code }}</p>
+      <p class="text-xl font-bold">{{ formatCurrency(item.price) }}</p>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    items: {
+      type: Array,
+      required: true
+    }
+  },
   methods: {
-    switchLanguage(lang) {
-      this.$i18n.locale = lang;
-      document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    formatCurrency(value) {
+      return `$${value ? value.toFixed(2) : '0.00'}`; // Handle undefined values
     }
   }
-};
-</script>
-
-<style>
-button {
-  margin: 5px;
 }
-</style>
+</script>
