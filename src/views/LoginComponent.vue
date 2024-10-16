@@ -46,6 +46,7 @@
                   </span>
                   <span class="text-white">{{ message }}</span>
                 </button>
+                <span class="text-danger">{{ error }}</span>
               </div>
             </form>
           </div>
@@ -66,7 +67,8 @@ export default {
       username: '',
       password: '',
       loading: false,
-      message:""
+      message:"",
+      error:""
     };
   },
   methods: {
@@ -83,6 +85,7 @@ export default {
           //console.log(response.data.message);
         if(response.data.message.success==true)
         {
+          this.loading = false;
           this.message = "Syncing Items, Customers, Pos Profile etc"
           localStorage.setItem('baseURL',this.baseURL);
           localStorage.setItem('token',response.data.message.token);
@@ -124,15 +127,21 @@ export default {
           router.push("/dashboard");
         }
         }).catch(error => {
+          this.loading = false;
         if (error.response) {
             // Server responded with a status other than 2xx
             console.error('Response error', error.response.data);
-        } else if (error.request) {
+            this.error = error.response.data;
+            
+        } else if (error) {
             // No response from server
-            console.error('Request error', error.request);
+            console.error('Request error', error);
+            this.error = error.request
         } else {
             // Axios encountered an error setting up the request
             console.error('Axios error', error.message);
+            this.error = error.message
+
         }
     });
     },

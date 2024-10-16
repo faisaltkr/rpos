@@ -5,11 +5,31 @@
           No items
         </div>
         <div v-else>
-          <div v-for="(item, index) in cart" :key="index" class="flex justify-between items-center border-b p-2">
+          <table class="table-auto w-full">
+            <thead>
+              <th>Sl No</th>
+              <th>Item Name</th>
+              <th>Qty</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+            </thead>
+            <tr v-for="(item, index) in cart" :key="index">
+              <td>{{ index+1 }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.price.toFixed(2) }}</td>
+              <td>{{ item.price*qty }}</td>
+              <!--<td>{{ index+1 }}</td>
+              <td>{{ index+1 }}</td> -->
+            </tr>
+          </table>
+          <!-- <div v-for="(item, index) in cart" :key="index" class="flex justify-between items-center border-b p-2">
+            <span>Sl No</span>
             <span>{{ item.name }}</span>
-            <span>${{ item.total.toFixed(2) }}</span>
+            <span>{{ item.total.toFixed(2) }}</span>
+            <span>{{ item.item_code }}</span>
             <button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button>
-          </div>
+          </div> -->
         </div>
       </div>
   
@@ -49,6 +69,7 @@ import moment from 'moment';
     },
     data(){
         return{
+            qty:1,
             baseURL:localStorage.getItem('baseURL') ?? "",
             pos : JSON.parse(localStorage.getItem('pos')),
             invoiceNo: "",
@@ -142,6 +163,9 @@ import moment from 'moment';
   }
   .text-red-500 {
   cursor: pointer;
+}
+table thead th, input{
+  background-color: rgb(17 24 39)
 }
   </style>
   

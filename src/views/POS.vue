@@ -7,9 +7,10 @@
   
       <!-- Search Bar -->
       <div class="flex overflow-hidden">
-        <div class="w-2/3 p-2 bg-gray-700 overflow-y-auto">
+        <div class="w-2/4
+         p-2 bg-gray-700 overflow-y-auto">
             <SearchBar @search="searchItems" @barcode-search="searchByBarcode" />
-            <button class="pl-2 bg-gray-700" @click="$emit('toggle-view')">
+            <button class="pl-2 bg-gray-700" @click="toggleViewMode()">
                 Toggle View: {{ viewMode==='Grid' ? 'List' : 'Grid' }}
             </button>
         </div>
@@ -20,12 +21,12 @@
       <div class="flex-1 flex overflow-hidden">
             
         <!-- Left Sidebar for Products -->
-        <div class="w-2/3 p-4 bg-gray-700 overflow-y-auto">
+        <div class="w-2/4 p-4 bg-gray-700 overflow-y-auto">
           <ProductGrid :searchItems="searchItems" :items="filteredItems" :viewMode="viewMode" @toggle-view="toggleViewMode" @add-to-cart="addToCart" />
         </div>
   
         <!-- Right Sidebar for Cart Summary -->
-        <div class="w-1/3 bg-gray-900 p-4 border-l">
+        <div class="w-2/4 bg-gray-900 p-4 border-l">
           <CartSummary @clear-cart="ClearOrder"  @remove-item="removeItemFromCart" :cart="cart" :vat-rate="vatRate" />
           
         </div>
@@ -61,7 +62,7 @@ import HeaderNav from '@/components/HeaderNav.vue';
         filteredItems: [],
         cart: [],
         vatRate: 0.15,
-        viewMode: 'Grid'
+        viewMode: 'List'
       }
     },
     created() {
