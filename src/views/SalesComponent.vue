@@ -1,5 +1,5 @@
 <template>
-  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-full h-screen overflow-hidden">
+  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-screen h-screen overflow-hidden">
     <HeaderNav/>
     
     <form @submit.prevent>
@@ -46,7 +46,7 @@
                 v-for="suggestion in customerSuggestions" 
                 :key="suggestion.id" 
                 @click="selectCustomer(suggestion)">
-                {{ suggestion.code }} - {{ suggestion.name }}
+                {{ suggestion.name }} - {{ suggestion.customer_name }}
               </li>
             </ul>
             </td>
@@ -81,7 +81,8 @@
                   v-model="item.code"
                   :ref="`code-${index}`" 
                   @keydown="handleKeyNavigation($event, index)"
-                  @keydown.enter="focusNext($event,index, 'code')" 
+                  @keydown.enter="focusNext($event,index, 'code')"
+                  autofocus 
                   @input="searchItems($event.target.value, index, 'code')"
                 />
                 
@@ -340,40 +341,14 @@ export default {
     },
     async fetchCustomers() {
       try {
-        const users = JSON.parse(localStorage.getItem('customers'))
-
-        console.log(users);
-        //const response = await fetch('https://dummyjson.com/users'); // Replace with your actual API endpoint
-        //const response = await fetch('');
-        //const data = await response.json();
-
-        //console.log(data);
-        this.customers = users.data.map(user => (
-          {
-            name: user.customer_name,
-            code: user.name,
-            balance: user.balance,
-            customer_type:user.custom_b2c
-          }
-      ));
+        this.customers = JSON.parse(localStorage.getItem('customers'))
       } catch (error) {
         console.error('Error fetching customers:', error);
       }
     },
     async fetchSalesmen() {
       try {
-        //const response = await fetch('https://dummyjson.com/users'); // Replace with your actual API endpoint
-        
-        //const data = await response.json();
-
-        // const data = localStorage.getItem('pos_profile')
-
-        // this.salesmen = data.map(pos => ({
-        //   name: pos.name,
-        //   payment_methods : pos.payment_methods.map(payment => ({
-        //      mode_of_payment : payment.mode_of_payment
-        //   }))
-        //}));
+        this.pos_profile = localStorage.getItem('pos_profile') || {};
       } catch (error) {
         console.error('Error fetching salesmen:', error);
       }
@@ -384,47 +359,31 @@ export default {
     
       if (codeQuery.length > 1 || nameQuery.length > 1) {
         this.customerSuggestions = this.customers.filter(customer =>
-          customer.code.toLowerCase().includes(codeQuery) ||
-          customer.name.toLowerCase().includes(nameQuery)
+          customer.name.toLowerCase().includes(codeQuery) ||
+          customer.customer_name.toLowerCase().includes(nameQuery)
         );
       } else {
         this.customerSuggestions = [];
       }
     },
-    searchSalesmen() {
-      const query = this.salesmanQuery.toLowerCase();
-    
-      if (query.length > 1) {
-        this.salesmanSuggestions = this.salesmen.filter(salesman =>
-          salesman.name.toLowerCase().includes(query)
-        );
-      } else {
-        this.salesmanSuggestions = [];
-      }
-    },
-    selectCustomer(suggestion) {
 
-      let address_url = this.baseURL+`/api/resource/Address?filters=[["Dynamic Link","link_doctype","=","Customer"],["Dynamic Link","link_name","=","${suggestion.name}"]]&fields=["name","address_title","address_line1","address_line2"]`;
-          axios.get(address_url, 
-          { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
-          ).then(result => {
-              //console.log(result.data.message);
-              let addresses = result.data.data;
-              console.log(addresses);
-              let address = "";
-              if(addresses.length > 0)
-              {
-                address = addresses[0].name+"\n"+addresses[0].address_title+"\n"+addresses[0].address_line1
-              }
-              this.customer = {
-                name: suggestion.name,
-                address: address,
-              };
-              this.customerCodeQuery = suggestion.code;
-              this.customerQuery = suggestion.name;
-              this.customerBalance = suggestion.balance;
-              this.customerSuggestions = [];
-          });
+    selectCustomer(suggestion) {
+      console.log(suggestion);
+          let address="";
+          if(suggestion.addresses.length > 0)
+          {
+            let addresse = suggestion.addresses[0];
+            address = addresse.address_line1+"\n"+addresse.address_line2+","+addresse.city
+          }
+
+          this.customer = {
+              name: suggestion.name,
+              address: address,
+          };
+          this.customerCodeQuery = suggestion.name;
+          this.customerQuery = suggestion.customer_name;
+          this.customerBalance = suggestion.balance;
+          this.customerSuggestions = [];
           
       
     },

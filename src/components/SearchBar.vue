@@ -1,10 +1,10 @@
 <template>
-    <div class="flex items-center p-2 bg-gray-700">
+    <div class="flex items-center bg-gray-700">
         
       <input
         type="text"
         v-model="query"
-        class="w-full p-2 text-black bg-gray-800"
+        class="w-full p-2 text-white bg-gray-800"
         placeholder="Search products by name, code, or barcode..."
         @input="onSearch"
         @keydown.enter="handleBarcodeSearch"
@@ -39,9 +39,11 @@
   </script>
   
   <style scoped>
-  input {
-    border: 1px solid #444;
-    background-color: #f9f9f9;
+    .input {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid #000000;
+    width: 300px;
   }
   </style>
   

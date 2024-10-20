@@ -89,13 +89,14 @@ export default {
           this.message = "Syncing Items, Customers, Pos Profile etc"
           localStorage.setItem('baseURL',this.baseURL);
           localStorage.setItem('token',response.data.message.token);
+          localStorage.setItem('email',this.username);
           
-          let customersUri = this.baseURL+'/api/resource/Customer?fields=["name", "customer_name", "customer_type", "customer_group", "territory","naming_series","custom_b2c"]';
+          let customersUri = this.baseURL+'/api/method/exone_api.masters.get_customers';
           axios.get(customersUri, 
           { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
           ).then(result => {
               
-              let customers = result.data;
+              let customers = result.data.message;
               const jsonData = JSON.stringify(customers, null, 2); // Pretty print JSON
               localStorage.setItem('customers',jsonData)
           });
@@ -112,7 +113,7 @@ export default {
 
           //fetching pos profile
 
-          let pos_profile = this.baseURL+"/api/method/exone_api.masters.get_pos_profile_and_printer_configs";
+          let pos_profile = this.baseURL+"/api/method/exone_api.masters.get_pos_profile_and_printer_configs?user="+this.username;
           axios.get(pos_profile, 
           { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
           ).then(result => {

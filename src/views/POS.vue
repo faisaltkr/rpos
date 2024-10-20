@@ -1,20 +1,13 @@
 <template>
-    <div class="flex flex-col h-screen bg-gray-800 text-white">
+    <div class="flex flex-col w-screen h-screen bg-gray-800 text-white">
 
     <HeaderNav></HeaderNav>
       <!-- Header -->
-      <HeaderComponent @payment="handlePayment" />
+       <!-- <HeaderView></HeaderView> -->
+      <HeaderComponent @search="searchItems" @focus-btn="focusBtn" @barcode-search="searchByBarcode" @payment="handlePayment" />
   
       <!-- Search Bar -->
-      <div class="flex overflow-hidden">
-        <div class="w-2/4
-         p-2 bg-gray-700 overflow-y-auto">
-            <SearchBar @search="searchItems" @barcode-search="searchByBarcode" />
-            <button class="pl-2 bg-gray-700" @click="toggleViewMode()">
-                Toggle View: {{ viewMode==='Grid' ? 'List' : 'Grid' }}
-            </button>
-        </div>
-        </div>
+      
   
       <!-- Main Content -->
       
@@ -22,37 +15,45 @@
             
         <!-- Left Sidebar for Products -->
         <div class="w-2/4 p-4 bg-gray-700 overflow-y-auto">
-          <ProductGrid :searchItems="searchItems" :items="filteredItems" :viewMode="viewMode" @toggle-view="toggleViewMode" @add-to-cart="addToCart" />
+          <ProductGrid :searchItems="searchItems" :items="filteredItems" :viewMode="viewMode"  @add-to-cart="addToCart" />
         </div>
   
         <!-- Right Sidebar for Cart Summary -->
+         
         <div class="w-2/4 bg-gray-900 p-4 border-l">
-          <CartSummary @clear-cart="ClearOrder"  @remove-item="removeItemFromCart" :cart="cart" :vat-rate="vatRate" />
+         
+          <CartSummary @clear-cart="ClearOrder" @focus-btn="PaymentBtnFocus(btn)"  @remove-item="removeItemFromCart" :cart="cart" :vat-rate="vatRate" />
           
         </div>
       </div>
-      
+
+      <FooterViewComponent :viewMode="viewMode" @toggle-view="toggleViewMode"></FooterViewComponent>
+
     </div>
   </template>
   
   <script>
   import 'font-awesome/css/font-awesome.css';
-  import HeaderComponent from '../components/HeaderComponent.vue'
-
+   import HeaderComponent from '../components/HeaderComponent.vue'
   import ProductGrid from '../components/ProductGrid.vue'
   import CartSummary from '../components/CartSummary.vue'
-import SearchBar from '@/components/SearchBar.vue';
-import HeaderNav from '@/components/HeaderNav.vue';
+  // import SearchBar from '@/components/SearchBar.vue';
+  import HeaderNav from '@/components/HeaderNav.vue';
+import FooterViewComponent from '@/components/FooterViewComponent.vue';
+// import HeaderView from '@/components/HeaderView.vue';
+
+
 
   
   
   export default {
     components: {
-      HeaderComponent,
       ProductGrid,
       CartSummary,
-      SearchBar,
-      HeaderNav
+      // HeaderView,
+      HeaderNav,
+      FooterViewComponent,
+      HeaderComponent
 
     },
     data() {
@@ -70,6 +71,9 @@ import HeaderNav from '@/components/HeaderNav.vue';
       this.filteredItems = this.items
     },
     methods: {
+      focusBtn(){
+          this.$emit('focus-btn')
+      },
       loadItemsFromLocalStorage() {
         const storedItems = JSON.parse(localStorage.getItem('items'))
         this.items = storedItems ? storedItems.items : []
@@ -90,6 +94,9 @@ import HeaderNav from '@/components/HeaderNav.vue';
         if (foundItem) {
           this.addToCart(foundItem)
         } else {
+          if(this.cart.length > 0){
+            this.$refs.PaymentBtn.focus()
+          }
           alert('Item not found')
         }
       },
@@ -113,7 +120,7 @@ import HeaderNav from '@/components/HeaderNav.vue';
           quantity: 1,
           price: item.standard_rate,
           total: item.standard_rate, // Initialize total for new item
-          vat: (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate : 15
+          vat: (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate : 0
         });
       }
       
