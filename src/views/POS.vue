@@ -14,20 +14,75 @@
       <div class="flex-1 flex overflow-hidden">
             
         <!-- Left Sidebar for Products -->
-        <div class="w-2/4 p-4 bg-gray-700 overflow-y-auto">
+        <div class="w-3/5 p-4 bg-gray-700 overflow-y-auto">
           <ProductGrid :searchItems="searchItems" :items="filteredItems" :viewMode="viewMode"  @add-to-cart="addToCart" />
         </div>
   
         <!-- Right Sidebar for Cart Summary -->
          
-        <div class="w-2/4 bg-gray-900 p-4 border-l">
+        <div class="w-2/5 bg-gray-900 p-4 border-l">
          
-          <CartSummary @clear-cart="ClearOrder" @focus-btn="PaymentBtnFocus(btn)"  @remove-item="removeItemFromCart" :cart="cart" :vat-rate="vatRate" />
+          <CartSummary @focus-btn="PaymentBtnFocus(btn)" @clear-cart="ClearOrder"  @remove-item="removeItemFromCart" :cart="cart" :vat-rate="vatRate" />
           
         </div>
       </div>
 
-      <FooterViewComponent :viewMode="viewMode" @toggle-view="toggleViewMode"></FooterViewComponent>
+      <FooterViewComponent @clear-order="ClearOrder" :cart="cart" :viewMode="viewMode" @toggle-view="toggleViewMode" @lock="DeskLock"></FooterViewComponent>
+
+
+      <div v-if="showReturn" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div class="bg-gray-600 shadow-lg p-6 w-full max-w-2xl">
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Payment fields -->
+          <div>
+            <label class="block text-white">Payable Amount</label>
+            <input type="text" class="text-white  w-full p-4 text-4xl" v-model="total" />
+          </div>
+          <div>
+            <label class="block text-white">Discount Amount</label>
+            <input type="text" class="text-white  w-full p-4 text-4xl" v-model="discountAmount" />
+          </div>
+
+        </div>
+
+          <div class="grid grid-cols-2 gap-4">
+          <!-- Sales Person Dropdown -->
+          <div>
+            <button v-if="amountGiven" @click="saveInvoice()" class="w-full bg-green-500 text-white px-2 py-2 mr-2">Get Invoice</button>
+          </div>
+
+          <div class="col-span-2">
+            <button @click="closeModal" class="w-full bg-red-500 text-white px-2 py-2">Cance Payment</button>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+
+    <div v-if="showLock==1" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div class="bg-gray-600 shadow-lg p-6 w-full max-w-md">
+
+        <div class="grid grid-cols-1 gap-4 justify-between">
+          <!-- Payment fields -->
+          <div>
+            <label class="block text-white">Enter Lock Password</label>
+            <input type="password" class="text-white bg-gray-800 w-full p-2 text-md" v-model="lock_password" />
+          </div>
+        </div>
+
+          <div class="grid grid-cols-1 gap-4 mt-2">
+          <!-- Sales Person Dropdown -->
+          <div>
+            <button  @click="unlockDesk()" class="w-full bg-green-500 text-white px-2 py-2 mr-2">Unlock</button>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+
 
     </div>
   </template>
@@ -58,19 +113,33 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
     },
     data() {
       return {
+        showReturn:false,
         items: [], // Load items from local storage
         searchQuery: '',
         filteredItems: [],
         cart: [],
         vatRate: 0.15,
-        viewMode: 'List'
+        viewMode: 'List',
+        showLock: 0,
+        lock_password:""
       }
     },
     created() {
+      //this.showLock = localStorage.getItem('showLock')
       this.loadItemsFromLocalStorage()
-      this.filteredItems = this.items
+      this.filteredItems = this.items,
+      this.getUnlock()
+    },
+    computed(){
+      this.getUnlock()
     },
     methods: {
+      getUnlock(){
+          this.showLock = localStorage.getItem('showLock');
+      },
+      GetInvoice(){
+
+      },
       focusBtn(){
           this.$emit('focus-btn')
       },
@@ -120,7 +189,7 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
           quantity: 1,
           price: item.standard_rate,
           total: item.standard_rate, // Initialize total for new item
-          vat: (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate : 0
+          vatRate: (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate : 0
         });
       }
       
@@ -130,6 +199,8 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
       this.cart.forEach(item => {
         // Ensure total is a number and calculate it
         item.total = (item.price * item.quantity) || 0;
+        item.vat = (item.total*item.vatRate)/100 || 0;
+        item.total = item.total+item.vat;
       });
     },
       calculateTotals() {
@@ -155,8 +226,24 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
         alert('Processing payment for the current cart.')
         this.cart = [] // Clear the cart after payment
       },
-      
-    }
+
+      DeskLock(){
+          this.showLock = 1;
+          localStorage.setItem('showLock',1);
+          localStorage.setItem('lock_password','123456');
+      },
+
+      unlockDesk(){
+        let lock_password = localStorage.getItem('lock_password');
+        if(this.lock_password==lock_password)
+        {
+          this.showLock = 0;
+          localStorage.setItem('showLock',0);
+        }
+      }
+
+    },
+   
   }
   </script>
   

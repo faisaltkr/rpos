@@ -1,19 +1,19 @@
 <template>
-    <div class="flex items-center justify-between p-2 pb-4 bg-gray-700">
+    <div class="flex items-center justify-between p-2 bg-gray-700">
       <div class="flex-1 flex overflow-hidden">
         
-          <div class="w-1/4 p-2 bg-gray-700 overflow-y-auto">
+          <div class="w-2/5 p-2 bg-gray-700 overflow-y-auto">
               <!-- <SearchBar @search="searchItems" @barcode-search="searchByBarcode" /> -->
               <input autofocus type="text" v-model="query" class="w-full p-2 text-white bg-gray-800" placeholder="Search products by name, code, or barcode..." @input="onSearch" @keydown.enter="handleBarcodeSearch" />
               
           </div>
-          <div class="w-1/4 p-2 bg-gray-700 overflow-y-auto">
+          <div class="w-1/5 p-2 bg-gray-700 overflow-y-auto">
             <button class="w-full  p-2 text-white bg-gray-600" @click="clearSearch">
                 Clear
               </button>
           </div>
         
-          <div class="w-2/4 p-2 bg-gray-700 overflow-y-auto">
+          <div class="w-2/5 p-2 bg-gray-700 overflow-y-auto">
             <CustomerSelect @customer-selected="handleCustomerSelected" @customer-cleared="handleCustomerCleared" />
           </div>
         </div>

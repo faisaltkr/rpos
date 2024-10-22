@@ -1,5 +1,5 @@
 <template>
-    <div class="flex justify-between p-4 bg-gray-700">
+    <div class="flex justify-between p-4-lg ">
       <button class="btn bg-red-600 text-white" @click="$emit('clear-order')">Clear Order</button>
       <button class="btn bg-gray-600 text-white" @click="$emit('lock')">Lock</button>
       <button class="btn bg-gray-600 text-white" @click="$emit('repeat-round')">Repeat Round</button>

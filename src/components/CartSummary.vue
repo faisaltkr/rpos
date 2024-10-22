@@ -5,9 +5,8 @@
           No items
         </div>
         <div v-else>
-          <div class="grid grid-cols-9 p-4 border-b text-lg font-bold">
+          <div class="grid grid-cols-8 p-2 border-b tex-lg text-sm font-bold-lg">
             <span>Sl No</span>
-            <span>Item Code</span>
             <span class="col-span-2">Item Name</span>
             <span>Rate</span>
             <span>QTY</span>
@@ -15,14 +14,14 @@
             <span>Total</span>
             <span>Delete</span>
           </div>
-          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 p-4 border-b">
+          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-8 p-2 border-b">
             <span>{{ index+1 }}</span>
-            <span>{{ item.item_code }}</span>
+           
             <span class="col-span-2">{{ item.name }}</span>
-            <span>{{ item.price.toFixed(2) }}</span>
+            <span>{{ item.price }}</span>
             <span>{{ item.quantity }}</span>
             <span>{{ item.vat }}</span>
-            <span>{{ item.total }}</span>
+            <span>{{ item.total.toFixed(2) }}</span>
             <span><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
           </div>
         </div>
@@ -43,12 +42,12 @@
           
         </div>
         <div class="flex justify-between ">
-          <button v-if="cart.length > 0" ref="PaymentBtn" class="p-4 my-2 w-full bg-green-600 text-white text-3xl" @click="showPayment=true">
+          <button v-if="cart.length > 0" ref="PaymentBtn" class="p-2 my-2 w-full bg-green-600 text-white text-xl" @click="payNow">
             <span v-html="currencySymbol(pos.pos_profiles[0].currency)"></span> Pay Now
           </button>
         </div>
 
-        <FooterComponent v-if="cart.length > 0" @clear-order="ClearOrder"></FooterComponent>
+        
       </div>
 
 
@@ -70,39 +69,21 @@
           <div >
             <!-- <label class="block text-white">Cash</label> -->
             
-            <button @click="cashSale" class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Cash</button>
+            <button @click="cashSale" @key.enter="alert('ddd')" class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Cash</button>
             <button @click="BankSale" class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Bank Card</button>
           </div>
           <div class="mt-2">
             <!-- <label class="block text-white">Bank Card</label> -->
-            <input type="text" :disabled="cash_disabled" :class="{'disabled':cash_disabled}" class="text-white mb-2  w-full p-3 text-3xl" v-model="cash" />
+            <input type="text"  ref="cashInput" :disabled="cash_disabled" :class="{'disabled':cash_disabled}" class="text-white mb-2  w-full p-3 text-3xl" v-model="cash" />
             <input type="text" :disabled="bank_disabled" :class="{'disabled':bank_disabled}" class="text-white  w-full p-3 text-3xl" v-model="bankCard" />
             
           </div>
-  
-          <!-- Additional payment details -->
-          <!-- <div>
-            <label class="block text-white">Net Total</label>
-            <input type="text" class="text-white  w-full p-2" v-model="netTotal" />
-          </div>
-          <div>
-            <label class="block text-white">Tax and Charges</label>
-            <input type="text" class="text-white  w-full p-2" v-model="taxAndCharges" />
-          </div> -->
-          <!-- <div>
-            <label class="block text-white">Total Amount</label>
-            <input type="text" class="text-white  w-full p-2" v-model="totalAmount" />
-          </div> -->
         </div>
           <div>
             <label class="block text-white">Balance</label>
             <input  type="text" class="text-white  w-full p-2 text-3xl" :class="{'disabled':balance_disabled}" :disabled="balance_disabled" v-model="balance" />
           </div>
           <div class="grid grid-cols-2 gap-4">
-          <!-- <div>
-            <label class="block text-white">Rounded Total</label>
-            <input type="text" class="text-white  w-full p-2" v-model="roundedTotal" />
-          </div> -->
   
           <!-- Toggle switches -->
           <div class="col-span-2 flex justify-between items-center mt-4">
@@ -149,17 +130,17 @@
   
   <script>
 import axios from 'axios';
-import FooterComponent from './FooterComponent.vue';
+
 import moment from 'moment';
 // import PaymentModal from './PaymentModal.vue';
 
   export default {
     components:{
-        FooterComponent,
+     
     },
     data(){
         return{
-            cash_disabled:true,
+            cash_disabled:false,
             bank_disabled:true,
             balance_disabled:false,
             showPayment:false,
@@ -169,14 +150,14 @@ import moment from 'moment';
             invoiceNo: "",
             salesDate: moment(new Date()).format('DD-MM-YYYY'),
             posUser: "",
-            paidAmount: 0,
-            toBePaid: 0,
+            paidAmount: "",
+            toBePaid: "",
             cash: 0,
             bankCard: 0,
-            netTotal: 0,
+            netTotal: "",
             taxAndCharges: this.vatTotal ? this.vatTotal : 0,
             totalAmount: '',
-            discountAmount: 0,
+            discountAmount: "",
             grandTotal: '',
             roundedTotal: '',
             isCreditSale: false,
@@ -189,6 +170,16 @@ import moment from 'moment';
     props: {
       cart: Array,
     },
+    watch: {
+        showPayment(newVal) {
+          if (newVal) {
+            // When showPayment is true, wait for the next DOM update and focus the Cash input
+            this.$nextTick(() => {
+              this.$refs.cashInput.focus();
+            });
+          }
+        }
+    },
     mounted(){
       this.pos_profile = this.openingEntry.pos_profile;
     },
@@ -197,10 +188,10 @@ import moment from 'moment';
         return this.cart.reduce((acc, item) => acc + (item.total ? parseFloat(item.total) : 0), 0);
       },
       vat() {
-        return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.price*item.vat/100) : 0), 0);
+        return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
-        return this.subtotal + this.vat - this.discountAmount;
+        return this.subtotal - this.discountAmount;
       },
       amountGiven(){
         let amount = parseFloat(this.cash)+parseFloat(this.bankCard);
@@ -212,20 +203,32 @@ import moment from 'moment';
       balance(){
           if(this.cash > 0 || this.bankCard > 0){
             let amt = parseFloat(this.cash)+parseFloat(this.bankCard) - this.total; 
-
             return amt.toFixed(2)
           }
           return 0;
       }
     },
     methods: {
+        Cashfocus(input){
+            input.focus()
+        },
+        payNow(){
+            this.showPayment =true;
+            this.balance = "";
+            this.cash = "";
+            this.bankCard=0;
+            this.cash_disabled = false;
+            this.bank_disabled = true;
+        },
         cashSale(){
           this.cash_disabled = !this.cash_disabled;
-          this.cash = 0;
+          this.cash = "";
+          this.bankCard = 0;
         },
         BankSale(){
             this.bank_disabled = !this.bank_disabled;
-            this.bankCard = 0;
+            this.cash = 0;
+            this.bankCard = "";
         },
         creditSale(){
             this.balance = 0;
@@ -266,7 +269,8 @@ import moment from 'moment';
                       item_code: item.item_code,
                       qty: item.quantity,
                       rate: item.price,
-                      vat:item.vat
+                      vat:item.vatRate,
+                      vat_amount:item.vat
                     }
                   }
                     
@@ -274,6 +278,8 @@ import moment from 'moment';
               var filtered = items.filter(function (el) {
                 return el != null;
               });
+
+            let totalVATAmount = filtered.reduce((accum, item) => accum + item.vat_amount, 0);
               
             const invoiceData = {
                 // Prepare data according to ERPNext Sales Invoice DocType
@@ -283,12 +289,22 @@ import moment from 'moment';
                 company:(this.pos.pos_profiles.length > 0) ? this.pos.pos_profiles[0].company : "Exone Technologies",
                 is_pos:1,
                 currency:"SAR",
-                exchange_rate:"22",
-                items : filtered
+                exchange_rate:"1",
+                items : filtered,
+                taxes: [
+                {
+                  charge_type: "On Net Total",
+                  account_head: "VAT 15% - ET", // The account head for VAT in ERPNext
+                  rate: 0, // If the rate is not fixed, you can keep it 0 and calculate the actual VAT amount below
+                  tax_amount: totalVATAmount, // The calculated total VAT amount
+                  description: "VAT",
+                }
+              ]
             };
 
 
           let sendToERPNext=this.baseURL+"/api/resource/Sales Invoice";
+          
           axios.defaults.headers.post['Content-Type'] = 'application/json';
           axios.defaults.headers.post['Authorization'] = `Basic ${localStorage.getItem('token')}`;
        
@@ -296,11 +312,16 @@ import moment from 'moment';
             const erpResult = erpResponse.data.data;
             console.log(erpResult);
             //this.printInvoiceDirectly(erpResult);
-            
             this.invoiceNo = erpResult.name;
+            let submitAPI=this.baseURL+`/api/resource/Sales Invoice/${this.invoiceNo}`;
+            axios.post(submitAPI,{}).then(submitResponse => {
+              console.log(submitResponse);
+            });
+            
             this.printInvoice(this.invoiceNo);
             alert('Invoice saved in ERPNext and sent to ZATCA successfully!');
-            this.$emit('clear-cart');
+            this.ClearOrder()
+            this.showPayment =false;
           });
             
         } catch (error) {
@@ -309,7 +330,7 @@ import moment from 'moment';
     
     },
       printInvoice(invoiceId) {
-        var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.print_html?doctype=Sales Invoice&name=${invoiceId}&format=Your_Print_Format&no_letterhead=0`;
+        var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.print_html?doctype=Sales Invoice&name=${invoiceId}&format=POS invoice&no_letterhead=0`;
 
         fetch(targetUrl, {
           method: 'GET',

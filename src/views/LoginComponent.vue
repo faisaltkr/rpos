@@ -64,8 +64,8 @@ export default {
   data() {
     return {
       baseURL: (localStorage.getItem('baseURL')) ? localStorage.getItem('baseURL') : "",
-      username: '',
-      password: '',
+      username: (localStorage.getItem('username')) ? localStorage.getItem('username') : "",
+      password: (localStorage.getItem('password')) ? localStorage.getItem('password') : "",
       loading: false,
       message:"",
       error:""
@@ -90,6 +90,7 @@ export default {
           localStorage.setItem('baseURL',this.baseURL);
           localStorage.setItem('token',response.data.message.token);
           localStorage.setItem('email',this.username);
+          localStorage.setItem('email',this.password);
           
           let customersUri = this.baseURL+'/api/method/exone_api.masters.get_customers';
           axios.get(customersUri, 
@@ -113,15 +114,15 @@ export default {
 
           //fetching pos profile
 
-          let pos_profile = this.baseURL+"/api/method/exone_api.masters.get_pos_profile_and_printer_configs?user="+this.username;
-          axios.get(pos_profile, 
-          { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
-          ).then(result => {
-              //console.log(result.data.message);
-              let pos = result.data.message;
-              const jsonPos= JSON.stringify(pos, null, 2); // Pretty print JSON
-              localStorage.setItem('pos',jsonPos)
-          });
+          // let pos_profile = this.baseURL+"/api/method/exone_api.masters.get_pos_profile_and_printer_configs?user="+this.username;
+          // axios.get(pos_profile, 
+          // { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
+          // ).then(result => {
+          //     //console.log(result.data.message);
+          //     let pos = result.data.message;
+          //     const jsonPos= JSON.stringify(pos, null, 2); // Pretty print JSON
+          //     localStorage.setItem('pos',jsonPos)
+          // });
 
           
 

@@ -1,7 +1,7 @@
 <template>
   <div>
    
-    <div v-if="viewMode === 'Grid'" class="grid grid-cols-2 gap-2">
+    <div v-if="viewMode === 'Grid'" class="grid grid-cols-3 gap-2">
       
       <div v-for="item in items" :key="item.item_code" class="bg-gray-600 p-4 rounded cursor-pointer" @click="$emit('add-to-cart', item)">
         <img v-if="item.image" :src="item.image" alt="" class="h-24 w-24 object-cover float-left mr-5">
@@ -17,8 +17,9 @@
             <span>Item Code</span>
             <span class="col-span-2">Item Name</span>
             <span>Rate</span>
+            <span>UOM</span>
             <span>Vat</span>
-            <span>Total</span>
+      
           </div>
       <div v-for="item in items" :key="item.item_code" class="grid grid-cols-6 p-4 border-b cursor-pointer" @click="$emit('add-to-cart', item)">
         <span>{{ item.item_code }}</span>
