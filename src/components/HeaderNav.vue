@@ -1,9 +1,12 @@
 <template>
-  <header class="header-nav">
-      <div class="grid grid-cols-2 gap-4">
+  <header class="header-nav p-2 bg-gray-900">
+      <div class="grid grid-cols-3 gap-4">
           <div class="col-start-1 col-end-3">
-            <nav>
+            <nav class="pt-1">
               <ul>
+                <li>
+                  <h1 class="text-white text-xl font-bold">ExoneTech</h1>
+                </li>
                 <li>
                   <b-icon icon="camera" font-scale="7.5"></b-icon>
                   <router-link to="/dashboard">Dashboard</router-link>
@@ -17,11 +20,22 @@
                 <li><router-link to="/pos">POS</router-link></li>
                 <li><router-link to="/report">Report</router-link></li>
                 <li><router-link to="/settings">Settings</router-link></li>
+                
               </ul>
+              
             </nav>
           </div>
-          <button class="text-white" @click="logout">Logout</button>
+          <div>
+            <ul>
+                <li>POS Profile : 
+                  <button class="bg-gray-600 text-white py-1 px-2">{{ pos_profile }}</button>
+                </li>
+              </ul>
+          </div>
+
+          
           <div class="col-end-7 col-span-2">
+            <button class="text-white" @click="logout">Logout</button>
             <button class="text-white" @click="switchLanguage('en')">English</button>
             <button class="text-white" @click="switchLanguage('ar')">العربية</button>
           </div>
@@ -35,6 +49,15 @@
 <script>
 export default {
   name: 'HeaderNav',
+  data(){
+    return{
+        pos_profile:"",
+        openingEntry:JSON.parse(localStorage.getItem('openingEntry'))
+    }
+  },
+  mounted(){
+      this.pos_profile = this.openingEntry.pos_profile;
+  },
   methods: {
     switchLanguage(lang) {
       this.$i18n.locale = lang;
@@ -55,8 +78,6 @@ export default {
 <style scoped>
 
 .header-nav {
-  background-color: #74a3d5;
-  padding: 10px 20px;
   box-shadow: -1px -1px 7px 0px;
 }
 

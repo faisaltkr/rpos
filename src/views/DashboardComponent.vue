@@ -89,12 +89,12 @@
             <input v-if="payment.mode=='Cash'"
               type="number"
               v-model="cash"
-              class="w-full p-2  border-gray-300 bg-gray-700"
+              class="w-full p-2  border-gray-300 bg-gray-700 text-white"
             />
             <input v-else
               type="number"
               v-model="bankCard"
-              class="w-full p-2  border-gray-300 bg-gray-700"
+              class="w-full p-2  border-gray-300 bg-gray-700 text-white"
             />
           </div>
         </div>

@@ -1,8 +1,8 @@
 <template>
-   <div class="flex"></div>
+    <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-screen h-screen overflow-hidden">
+      <HeaderNav></HeaderNav>
 
-
-<HeaderNav></HeaderNav>
+    </div>
  </template>    
 
 

@@ -1,9 +1,10 @@
 <template>
+    
     <div class="flex flex-col w-screen h-screen bg-gray-800 text-white">
-
+      
     <HeaderNav></HeaderNav>
       <!-- Header -->
-       <!-- <HeaderView></HeaderView> -->
+
       <HeaderComponent @search="searchItems" @focus-btn="focusBtn" @barcode-search="searchByBarcode" @payment="handlePayment" />
   
       <!-- Search Bar -->
@@ -11,8 +12,7 @@
   
       <!-- Main Content -->
       
-      <div class="flex-1 flex overflow-hidden">
-            
+      <div class="flex-1 flex overflow-hidden loading">
         <!-- Left Sidebar for Products -->
         <div class="w-3/5 p-4 bg-gray-700 overflow-y-auto">
           <ProductGrid :searchItems="searchItems" :items="filteredItems" :viewMode="viewMode"  @add-to-cart="addToCart" />
@@ -68,14 +68,15 @@
           <!-- Payment fields -->
           <div>
             <label class="block text-white">Enter Lock Password</label>
-            <input type="password" class="text-white bg-gray-800 w-full p-2 text-md" v-model="lock_password" />
+            <input @keydown.enter="focusUnlockBtn()" @click="error_msg=''" type="password" class="text-white bg-gray-800 w-full p-2 text-md" v-model="lock_password" />
+            <span class="text-red-600">{{ error_msg }}</span>
           </div>
         </div>
 
           <div class="grid grid-cols-1 gap-4 mt-2">
           <!-- Sales Person Dropdown -->
           <div>
-            <button  @click="unlockDesk()" class="w-full bg-green-500 text-white px-2 py-2 mr-2">Unlock</button>
+            <button ref="unlockBtn"  @click="unlockDesk()" class="w-full bg-green-500 text-white px-2 py-2 mr-2">Unlock</button>
           </div>
         </div>
         
@@ -95,7 +96,6 @@
   // import SearchBar from '@/components/SearchBar.vue';
   import HeaderNav from '@/components/HeaderNav.vue';
 import FooterViewComponent from '@/components/FooterViewComponent.vue';
-// import HeaderView from '@/components/HeaderView.vue';
 
 
 
@@ -105,7 +105,6 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
     components: {
       ProductGrid,
       CartSummary,
-      // HeaderView,
       HeaderNav,
       FooterViewComponent,
       HeaderComponent
@@ -121,7 +120,8 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
         vatRate: 0.15,
         viewMode: 'List',
         showLock: 0,
-        lock_password:""
+        lock_password:"",
+        error_msg:""
       }
     },
     created() {
@@ -231,6 +231,7 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
           this.showLock = 1;
           localStorage.setItem('showLock',1);
           localStorage.setItem('lock_password','123456');
+          this.lock_password=""
       },
 
       unlockDesk(){
@@ -239,8 +240,14 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
         {
           this.showLock = 0;
           localStorage.setItem('showLock',0);
+        }else{
+          this.error_msg = "Invalid Lock Password"
         }
-      }
+      },
+
+      focusUnlockBtn() {
+          this.$refs.unlockBtn.focus()
+      },
 
     },
    
