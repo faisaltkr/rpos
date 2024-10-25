@@ -90,8 +90,10 @@ export default {
           localStorage.setItem('baseURL',this.baseURL);
           localStorage.setItem('token',response.data.message.token);
           localStorage.setItem('email',this.username);
-          localStorage.setItem('email',this.password);
-          
+          localStorage.setItem('password',this.password);
+          localStorage.setItem('pos',JSON.stringify(response.data.message.pos_profile_details))
+          localStorage.setItem('user',JSON.stringify(response.data.message.user_details))
+
           let customersUri = this.baseURL+'/api/method/exone_api.masters.get_customers';
           axios.get(customersUri, 
           { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }

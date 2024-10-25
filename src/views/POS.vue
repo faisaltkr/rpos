@@ -22,7 +22,7 @@
          
         <div class="w-2/5 bg-gray-900 p-4 border-l">
          
-          <CartSummary @focus-btn="PaymentBtnFocus(btn)" @clear-cart="ClearOrder"  @remove-item="removeItemFromCart" :cart="cart" :vat-rate="vatRate" />
+          <CartSummary ref="cartSummaryComponent"  @clear-cart="ClearOrder"  @remove-item="removeItemFromCart" :cart="cart" :vat-rate="vatRate" />
           
         </div>
       </div>
@@ -146,8 +146,6 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
       loadItemsFromLocalStorage() {
         const storedItems = JSON.parse(localStorage.getItem('items'))
         this.items = storedItems ? storedItems.items : []
-        console.log(this.items);
-        
       },
       searchItems(query) {
         this.searchQuery = query.toLowerCase()
@@ -159,17 +157,28 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
         })
       },
       searchByBarcode(barcode) {
-        const foundItem = this.items.find(item => item.item_code === barcode)
+        const foundItem = this.items.find(item => item.item_code === barcode);
         if (foundItem) {
-          this.addToCart(foundItem)
-        } else {
-          if(this.cart.length > 0){
-            this.$refs.PaymentBtn.focus()
+          this.addToCart(foundItem);
+        } else if (barcode === "") {
+          if (this.cart.length > 0) {
+            this.$nextTick(() => {
+              // Access the CartSummary component via $refs
+              const cartSummaryComponent = this.$refs.cartSummaryComponent;
+              if (cartSummaryComponent) {
+                const PaymentBtn = cartSummaryComponent.$refs.PaymentBtn;
+                if (PaymentBtn) {
+                  PaymentBtn.focus();
+                }
+              }
+            });
           }
-          alert('Item not found')
+        } else {
+          alert('Item not found');
         }
       },
-        removeItemFromCart(index) {
+              
+      removeItemFromCart(index) {
       // Remove the item from the cart by index
         this.cart.splice(index, 1);
       },
@@ -245,10 +254,23 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
         }
       },
 
-      focusUnlockBtn() {
-          this.$refs.unlockBtn.focus()
+      filterCustomers() {
+        this.filteredCustomers = this.customers.data.filter(customer =>
+          customer.customer_name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
       },
-
+      selectCustomer(customer) {
+        this.selectedCustomer = customer;
+        this.searchQuery = customer.name;
+        this.filteredCustomers = [];
+        this.$emit('customer-selected', customer);
+      },
+      clearCustomer() {
+        this.selectedCustomer = null;
+        this.searchQuery = '';
+        this.filteredCustomers = [];
+        this.$emit('customer-cleared');
+      },
     },
    
   }

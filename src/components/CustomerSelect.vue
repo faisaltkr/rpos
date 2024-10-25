@@ -16,7 +16,7 @@
         >✖
         </button>
       </div>
-      <ul v-if="filteredCustomers.length > 0" class="absolute border bg-gray-800 rounded-md mt-2 max-h-48 overflow-y-auto">
+      <ul v-if="filteredCustomers.length > 0" class="absolute border bg-gray-800 rounded-md mt-2 max-h-48 overflow-y-auto w-100">
         <li
           v-for="customer in filteredCustomers"
           :key="customer.id"
@@ -36,7 +36,7 @@
         searchQuery: 'CASH',
         customers: [],
         filteredCustomers: [],
-        selectedCustomer: 'CASH',
+        selectedCustomer: 'CASH'
       };
     },
     created() {
@@ -48,7 +48,7 @@
         this.customers = customersData ? JSON.parse(customersData) : [];
       },
       filterCustomers() {
-        this.filteredCustomers = this.customers.data.filter(customer =>
+        this.filteredCustomers = this.customers.filter(customer =>
           customer.customer_name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       },

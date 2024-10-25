@@ -54,6 +54,7 @@ import CustomerSelect from './CustomerSelect.vue';
       handleBarcodeSearch() {
         this.$emit('barcode-search', this.query) // Emit barcode-search event for barcode-specific searches
         this.query = '' // Clear the query after barcode is processed
+        this.clearSearch()
         
       },
       clearSearch() {
@@ -65,6 +66,7 @@ import CustomerSelect from './CustomerSelect.vue';
       },
       handleCustomerSelected(customer) {
         this.selectedCustomer = customer;
+        this.$emit('barcode-search', this.query)
       },
       handleCustomerCleared() {
         this.selectedCustomer = null;

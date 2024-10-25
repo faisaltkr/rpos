@@ -27,8 +27,8 @@
           </div>
           <div>
             <ul>
-                <li>POS Profile : 
-                  <button class="bg-gray-600 text-white py-1 px-2">{{ pos_profile }}</button>
+                <li class="text-white">POS Profile :
+                  <button class="bg-gray-600 text-white py-1 px-2">  {{ pos_profile }}</button>
                 </li>
               </ul>
           </div>
@@ -52,11 +52,12 @@ export default {
   data(){
     return{
         pos_profile:"",
-        openingEntry:JSON.parse(localStorage.getItem('openingEntry'))
+        openingEntry: ""
     }
   },
   mounted(){
-      this.pos_profile = this.openingEntry.pos_profile;
+      this.openingEntry = localStorage.getItem('openingEntry') ? JSON.parse(localStorage.getItem('openingEntry')) : ""
+      this.pos_profile = (this.openingEntry) ? this.openingEntry.pos_profile : ""
   },
   methods: {
     switchLanguage(lang) {

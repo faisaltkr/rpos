@@ -33,6 +33,7 @@ const messages = {
     warehouse: 'Warehouse',
     remarks: 'Remarks',
     balance: 'Balance',
+    zatca_status:"ZATCA STATUS",
     print:'Print',
     suggestions: {
       code: 'Code',
@@ -42,7 +43,13 @@ const messages = {
       stock: 'Stock'
     },
     genWarehouse: 'GEN.WAREHOUSE',
-    SalesMan: "Sales Man"
+    SalesMan: "Sales Man",
+    totalSales:"Total Sales",
+    salesToday:"Sales Today",
+    totalCustomers:"Total Customers",
+    totalInvoices:"Total Sales",
+    totalSubmited:"Total Submitd to ZATCA",
+    recentSales:"Recent Sales"
   },
   ar: {
     Sales: "لوحة",
@@ -82,7 +89,14 @@ const messages = {
       stock: 'المخزون'
     },
     genWarehouse: 'المستودع العام',
-    SalesMan: 'رجل المبيعات'
+    SalesMan: 'رجل المبيعات',
+    totalSales:"Total Sales",
+    salesToday:"Sales Today",
+    totalCustomers:"Total Customers",
+    totalInvoices:"Total Sales",
+    totalSubmited:"Total Submitd to ZATCA",
+    recentSales:"Recent Sales",
+    zatca_status:"ZATCA STATUS",
   }
 };
 

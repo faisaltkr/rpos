@@ -2,47 +2,57 @@
   <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-screen h-screen overflow-hidden">
     <HeaderNav />
     
-    <div class="dashboard grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-      <div class="card bg-blue-500 text-white p-5 rounded-lg shadow-lg">
+    <div class="dashboard grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-4">
+      <div class="card bg-blue-500 text-white p-10 shadow-lg">
         <h3 class="text-lg font-semibold">{{ $t('totalSales') }}</h3>
         <p class="text-2xl font-bold">{{ formatCurrency(salesData.length) }}</p>
       </div>
       
-      <div class="card bg-green-500 text-white p-5 rounded-lg shadow-lg">
+      <div class="card bg-green-500 text-white p-10 shadow-lg">
         <h3 class="text-lg font-semibold">{{ $t('salesToday') }}</h3>
         <p class="text-2xl font-bold">{{ formatCurrency(salesToday) }}</p>
       </div>
       
-      <div class="card bg-yellow-500 text-white p-5 rounded-lg shadow-lg">
+      <div class="card bg-yellow-500 text-white p-10 shadow-lg">
         <h3 class="text-lg font-semibold">{{ $t('totalCustomers') }}</h3>
         <p class="text-2xl font-bold">{{ totalCustomers }}</p>
       </div>
       
-      <div class="card bg-red-500 text-white p-5 rounded-lg shadow-lg">
+      <div class="card bg-red-500 text-white p-10 shadow-lg">
         <h3 class="text-lg font-semibold">{{ $t('totalInvoices') }}</h3>
         <p class="text-2xl font-bold">{{ totalInvoices }}</p>
       </div>
+
+      <div class="card bg-violet-600 text-white p-10 shadow-lg">
+        <h3 class="text-lg font-semibold">{{ $t('totalSubmited') }}</h3>
+        <p class="text-2xl font-bold">{{ totalSubmited }}</p>
+      </div>
     </div>
+
+    
     
     <div class="sales-table mt-10 m-2">
       <h2 class="text-xl font-semibold mb-4">{{ $t('recentSales') }}</h2>
       <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
         <thead>
           <tr>
+            <th class="py-2 px-4 border-b">{{ $t('salesDate') }}</th>
             <th class="py-2 px-4 border-b">{{ $t('invoiceNo') }}</th>
             <th class="py-2 px-4 border-b">{{ $t('customer') }}</th>
-            <th class="py-2 px-4 border-b">{{ $t('salesDate') }}</th>
             <th class="py-2 px-4 border-b">{{ $t('amount') }}</th>
             <th class="py-2 px-4 border-b">{{ $t('salesman') }}</th>
+            <th class="py-2 px-4 border-b">{{ $t('zatca_status') }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="sale in salesData" :key="sale.name" class="hover:bg-gray-100">
+            <td class="py-2 px-4 border-b">{{ sale.posting_date }}</td>
             <td class="py-2 px-4 border-b">{{ sale.name }}</td>
             <td class="py-2 px-4 border-b">{{ sale.customer_name }}</td>
-            <td class="py-2 px-4 border-b">{{ sale.posting_date }}</td>
-            <td class="py-2 px-4 border-b">{{ formatCurrency(sale.grand_total) }}</td>
+
+            <td class="py-2 px-4 border-b"><span v-html="currencySymbol(salesPersons[0].currency)"></span>{{ sale.grand_total }}</td>
             <td class="py-2 px-4 border-b">{{ sale.pos_profile }}</td>
+            <td class="py-2 px-4 border-b">{{ sale.custom_zatca_status }}</td>
           </tr>
         </tbody>
       </table>
@@ -50,7 +60,7 @@
  
 
     
-  <div v-if="showPopup && salesPersons.pos_profiles.length > 0 && openingEntry" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+  <div v-if="showPopup && salesPersons.length > 0 && openingEntry" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
       <div class="bg-gray-600 shadow-lg p-6 w-full max-w-2xl">
         <div>
             <label class="block text-white">Company</label>
@@ -66,7 +76,7 @@
             <label class="block text-white">Pos Profile</label>
             <select @change="getModeofpayments" v-model="pos_profile" class="text-white w-full p-2 bg-gray-700 text-xl">
               <option value="">Select Pos Profile</option>
-              <option v-for="profile in salesPersons.pos_profiles" selected="true" :key="profile.id" :value="profile.name">
+              <option v-for="profile in this.salesPersons" selected="true" :key="profile.id" :value="profile.name">
                 {{ profile.name }}
               </option>
             </select>
@@ -113,7 +123,7 @@
       </div>
     </div>
 
-      <div v-if="salesPersons.pos_profiles.length==0 && showPopup" class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div v-if="salesPersons.length==0 && showPopup" class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
         <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -129,7 +139,7 @@
                   <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Warning</h3>
                     <div class="mt-2">
-                      <p class="text-sm text-gray-500">POS Profiles are does'nt exists</p>
+                      <p class="text-sm text-gray-500">POS Profiles are does'nt exists the logged user</p>
                     </div>
                   </div>
                 </div>
@@ -167,12 +177,13 @@ export default {
       salesToday: 0,
       totalCustomers: 0,
       totalInvoices: 0,
+      totalSubmited:0,
       recentSales: [],
       salesData:[],
       showPopup: true,
       posUser: "",
-      cash: 0,
-      bankCard: 0,
+      cash: "",
+      bankCard: "",
       netTotal: 0,
       taxAndCharges: this.vatTotal ? this.vatTotal : 0,
       totalAmount: '',
@@ -182,18 +193,26 @@ export default {
       isCreditSale: false,
       useCustomerCredit: false,
       salesPerson: '',
-      salesPersons: JSON.parse(localStorage.getItem('pos')),
+      salesPersons: [],
       company : '',
       payment_methods: [],
-      email:localStorage.getItem('email'),
-      currency:"SAR"
+      user:{},
+      currency:"SAR",
+      pos_profile:""
     };
+  },
+  mounted() {
+    this.user = JSON.parse(localStorage.getItem('user'));
+    this.fetchDashboardData();
+    this.salesPersons = (localStorage.getItem('pos')) ?  (JSON.parse(localStorage.getItem('pos'))) : [];
+    this.getCompany()
+    this.openingEntry = (localStorage.getItem('openingEntry')) ?  false : true;
   },
   methods: {
     async fetchDashboardData() {
       try {
         
-        let url = this.baseURL+'/api/resource/Sales Invoice?limit=10&offset=0&fields=["name","grand_total","posting_date","customer_name","pos_profile"]';
+        let url = this.baseURL+'/api/resource/Sales Invoice?limit=20&offset=0&fields=["name","grand_total","posting_date","customer_name","pos_profile","custom_zatca_status"]&order_by=name desc';
            axios.get(url, 
           { headers: {"Authorization" : `Basic ${localStorage.getItem('token')}`} }
           ).then(result => {
@@ -210,32 +229,33 @@ export default {
         console.error('Error fetching dashboard data:', error);
       }
     },
+    
     formatCurrency(value) {
       if (!value) return '';
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'USD'
+        currency: this.salesPersons[0].currency
       }).format(value);
     },
     closePopup() {
         this.showPopup = false;
      },
      getCompany(){
-        this.company = this.salesPersons.pos_profiles.length > 0 ? this.salesPersons.pos_profiles[0].company : ""
-        this.currency = this.salesPersons.pos_profiles.length > 0 ? this.salesPersons.pos_profiles[0].currency : ""
-        this.pos_profile = this.salesPersons.pos_profiles.length > 0 ? this.salesPersons.pos_profiles[0].name : ""
-        console.log(this.salesPersons.pos_profiles[0].payment_methods);
+        this.company = this.salesPersons?.length > 0 ? this.salesPersons[0].company : ""
+        this.currency = this.salesPersons?.length > 0 ? this.salesPersons[0].currency : ""
+        this.pos_profile = this.salesPersons?.length > 0 ? this.salesPersons[0].name : ""
         
-        if(this.salesPersons.pos_profiles.length > 0)
+        if(this.salesPersons.length > 0)
         {
-          this.payment_methods =  this.salesPersons.pos_profiles[0].payment_methods.map(modes => ({
+          console.log(this.salesPersons);
+          
+          this.payment_methods =  this.salesPersons[0].payment_methods.map(modes => ({
               mode: modes.mode_of_payment,
               amount: 0,
           }))
         }
-        console.log(this.payment_methods);
         
-        return this.salesPersons.pos_profiles.filter((value, index, self) => self.findIndex(v => v.company === value.company) === index);
+        return this.salesPersons.filter((value, index, self) => self.findIndex(v => v.company === value.company) === index);
      },
 
 
@@ -247,7 +267,7 @@ export default {
         "company": this.company,
         "posting_date": moment(new Date()).format('YYYY-MM-DD'),
         "pos_profile": this.pos_profile,
-        "user": this.email.toString(),
+        "user": this.user.email.toString(),
         "period_start_date": moment(new Date()).format('YYYY-MM-DD'),
         "balance_details": this.payment_methods
               .filter(method => method.mode) // Ensure mode_of_payment is present
@@ -296,10 +316,7 @@ export default {
     }
 
   },
-  mounted() {
-    this.fetchDashboardData();
-    this.openingEntry = (localStorage.getItem('openingEntry')) ?  false : true;
-  },
+
 };
 </script>
 

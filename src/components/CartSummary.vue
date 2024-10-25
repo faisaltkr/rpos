@@ -30,24 +30,25 @@
       <div class="bg-gray-800 p-4 mt-4 rounded-lg">
         <div class="flex justify-between mb-2">
           <span>Subtotal:</span>
-          <span><span v-html="currencySymbol(pos.pos_profiles[0].currency)"></span>{{ subtotal.toFixed(2) }}</span>
+          
+          <span><span v-html="currencySymbol(pos[0].currency)"></span>{{ subtotal.toFixed(2) }}</span>
         </div>
         <div class="flex justify-between mb-2">
           <span>VAT:</span>
-          <span><span v-html="currencySymbol(pos.pos_profiles[0].currency)"></span>{{ vat.toFixed(2) }}</span>
+          <span><span v-html="currencySymbol(pos[0].currency)"></span>{{ vat.toFixed(2) }}</span>
         </div>
         <div class="flex justify-between font-bold mb-4">
           <span>Total:</span>
-          <span><span v-html="currencySymbol(pos.pos_profiles[0].currency)"></span>{{ total.toFixed(2) }}</span>
+          <span><span v-html="currencySymbol(pos[0].currency)"></span>{{ total.toFixed(2) }}</span>
           
         </div>
         <div class="flex justify-between ">
           <button v-if="cart.length > 0" ref="PaymentBtn" class="p-2 my-2 w-full bg-green-600 text-white text-xl" @click="payNow">
-            <span v-html="currencySymbol(pos.pos_profiles[0].currency)"></span> Pay Now
+            <span v-html="currencySymbol(pos[0].currency)"></span> Pay Now
           </button>
         </div>
 
-        
+    
       </div>
 
 
@@ -69,7 +70,7 @@
           <div >
             <!-- <label class="block text-white">Cash</label> -->
             
-            <button @click="cashSale" @key.enter="alert('ddd')" class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Cash</button>
+            <button @click="cashSale" class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Cash</button>
             <button @click="BankSale" class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Bank Card</button>
           </div>
           <div class="mt-2">
@@ -102,7 +103,7 @@
             <label class="block text-white">Sales Person</label>
             <select v-model="pos_profile" class="w-full p-2 bg-gray-700">
               <option value="">Select Sales Person</option>
-              <option v-for="person in salesPersons.pos_profiles" :key="person.id" :value="person.name">
+              <option v-for="person in pos" :key="person.id" :value="person.name">
                 {{ person.name }}
               </option>
             </select>
@@ -123,8 +124,6 @@
       </div>
     </div>
 
-
-
     </div>
   </template>
   
@@ -132,12 +131,11 @@
 import axios from 'axios';
 
 import moment from 'moment';
+
+const qz = require("qz-tray");
 // import PaymentModal from './PaymentModal.vue';
 
   export default {
-    components:{
-     
-    },
     data(){
         return{
             cash_disabled:false,
@@ -163,8 +161,9 @@ import moment from 'moment';
             isCreditSale: false,
             useCustomerCredit: false,
             salesPerson: '',
-            salesPersons: JSON.parse(localStorage.getItem('pos')),
-            openingEntry:JSON.parse(localStorage.getItem('openingEntry'))
+            openingEntry:JSON.parse(localStorage.getItem('openingEntry')),
+            printerName: 'Save as PDF',
+            qzInitialized: false,
         }
     },
     props: {
@@ -180,9 +179,17 @@ import moment from 'moment';
           }
         }
     },
+    created() {
+        //this.initializeQZ();
+    },
     mounted(){
       this.pos_profile = this.openingEntry.pos_profile;
+      this.configureQZTray();
     },
+    beforeUnmount() {
+    // Disconnect QZ Tray when the component is destroyed
+    qz.websocket.disconnect();
+  },
     computed: {
       subtotal() {
         return this.cart.reduce((acc, item) => acc + (item.total ? parseFloat(item.total) : 0), 0);
@@ -206,9 +213,44 @@ import moment from 'moment';
             return amt.toFixed(2)
           }
           return 0;
-      }
+      },
+      paymentMethods(){
+          let paymentMethods=[]
+            if(this.cash > 0)
+            {
+              paymentMethods.push({mode_of_payment:"Cash",amount:this.cash})
+            } 
+            if(this.bankCard > 0)
+            {
+              paymentMethods.push({mode_of_payment:"Bank Card", amount:this.bankCard})
+            } 
+
+            return paymentMethods;
+        },
+      
     },
     methods: {
+      configureQZTray() {
+      qz.security.setCertificatePromise((resolve, reject) => {
+        console.log(reject);
+        
+        resolve("-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----");
+      });
+
+      qz.security.setSignaturePromise((toSign) => {
+        return function(resolve, reject) {
+          console.log(reject);
+          console.log(toSign);
+          resolve("signed_data_here");
+        };
+      });
+
+      qz.websocket.connect().catch((err) => {
+        console.error("QZ Tray connection failed", err);
+      });
+    },
+
+
         Cashfocus(input){
             input.focus()
         },
@@ -273,22 +315,24 @@ import moment from 'moment';
                       vat_amount:item.vat
                     }
                   }
-                    
               });
               var filtered = items.filter(function (el) {
                 return el != null;
               });
 
             let totalVATAmount = filtered.reduce((accum, item) => accum + item.vat_amount, 0);
+            // if(this.creditSale){
+
+            // }
               
             const invoiceData = {
                 // Prepare data according to ERPNext Sales Invoice DocType
                 customer: "CASH",
                 due_date:moment(new Date()).format('YYYY-MM-DD'),
                 posting_date:moment(new Date()).format('YYYY-MM-DD'),
-                company:(this.pos.pos_profiles.length > 0) ? this.pos.pos_profiles[0].company : "Exone Technologies",
+                company:(this.pos.length > 0) ? this.pos[0].company : "Exone Technologies",
                 is_pos:1,
-                currency:"SAR",
+                currency:this.pos[0].currency,
                 exchange_rate:"1",
                 items : filtered,
                 taxes: [
@@ -299,7 +343,8 @@ import moment from 'moment';
                   tax_amount: totalVATAmount, // The calculated total VAT amount
                   description: "VAT",
                 }
-              ]
+              ],
+              payments: this.paymentMethods
             };
 
 
@@ -313,8 +358,9 @@ import moment from 'moment';
             console.log(erpResult);
             //this.printInvoiceDirectly(erpResult);
             this.invoiceNo = erpResult.name;
-            let submitAPI=this.baseURL+`/api/resource/Sales Invoice/${this.invoiceNo}`;
-            axios.post(submitAPI,{}).then(submitResponse => {
+            let submitody = {"doc": erpResult}
+            let submitAPI=this.baseURL+`/api/method/frappe.client.submit`;
+            axios.post(submitAPI,submitody).then(submitResponse => {
               console.log(submitResponse);
             });
             
@@ -329,30 +375,72 @@ import moment from 'moment';
         }
     
     },
-      printInvoice(invoiceId) {
-        var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.print_html?doctype=Sales Invoice&name=${invoiceId}&format=POS invoice&no_letterhead=0`;
 
-        fetch(targetUrl, {
-          method: 'GET',
-          headers: {
-            Authorization: 'Basic '+localStorage.getItem('token'),
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          // Do something with the data or open it in a new window
-          const newWindow = window.open();
-          newWindow.document.write(JSON.stringify(data));
-        })
-        .catch(error => console.error('Error:', error));
-
-        //Open window
-        //window.open(url,'_blank');
-        //window.open();
-      },
       ClearOrder() {
         this.$emit('clear-cart'); // Emit an event to notify the parent component
      },
+
+
+    // async fetchInvoicePrintFormat(invoiceName) {
+    //   try {
+    //     const response = await axios.get(
+    //       `${this.baseURL}/api/method/frappe.utils.print_format.download_pdf`,
+    //       {
+    //         params: {
+    //           doctype: "Sales Invoice",
+    //           name: invoiceName,
+    //           format: "Standard", // Replace with your custom print format name if needed
+    //           no_letterhead: 0
+    //         },
+    //         headers: {
+    //           Authorization: `Basic ${localStorage.getItem('token')}`
+    //         }
+    //       }
+    //     );
+    //     return response.data;
+    //   } catch (error) {
+    //     console.error("Error fetching the Sales Invoice print format:", error);
+    //     return null;
+    //   }
+    // },
+
+    async printInvoice(invoiceName) {
+      try {
+        this.configureQZTray();
+        // Fetch the print layout from ERPNext
+        const printFormat = 'Standard'; // Set your print format here
+        var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
+        console.log(targetUrl)
+        const response = await fetch(targetUrl,
+          {
+            responseType: 'arraybuffer',
+            headers: {
+              Authorization: 'Basic '+localStorage.getItem('token'),
+            }
+          }
+        );
+        const pdfBlob = await response.blob();
+        const pdfData = await pdfBlob.arrayBuffer();
+
+        console.log(pdfData,"==============================");
+        
+
+        // Prepare print data for QZ Tray
+        const config = qz.configs.create(this.printerName);
+        const data = [{
+          type: 'pdf',
+          format: 'base64',
+          data: btoa(String.fromCharCode(...new Uint8Array(pdfData)))
+        }];
+
+        // Send print job to the printer
+        await qz.print(config, data);
+        console.log('Print job sent successfully!');
+      } catch (error) {
+        console.error('Error printing invoice:', error);
+      }
+    }
+
     },
     
   }
