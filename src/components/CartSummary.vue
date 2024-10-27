@@ -20,7 +20,7 @@
             <span class="col-span-2">{{ item.name }}</span>
             <span>{{ item.price }}</span>
             <span>{{ item.quantity }}</span>
-            <span>{{ item.vat }}</span>
+            <span>{{ item.vat.toFixed(2) }}</span>
             <span>{{ item.total.toFixed(2) }}</span>
             <span><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
           </div>
@@ -31,20 +31,20 @@
         <div class="flex justify-between mb-2">
           <span>Subtotal:</span>
           
-          <span><span v-html="currencySymbol(pos[0].currency)"></span>{{ subtotal.toFixed(2) }}</span>
+          <span>{{ subtotal.toFixed(2) }}</span>
         </div>
         <div class="flex justify-between mb-2">
           <span>VAT:</span>
-          <span><span v-html="currencySymbol(pos[0].currency)"></span>{{ vat.toFixed(2) }}</span>
+          <span>{{ vat.toFixed(2) }}</span>
         </div>
         <div class="flex justify-between font-bold mb-4">
           <span>Total:</span>
-          <span><span v-html="currencySymbol(pos[0].currency)"></span>{{ total.toFixed(2) }}</span>
+          <span>{{ total.toFixed(2) }}</span>
           
         </div>
         <div class="flex justify-between ">
           <button v-if="cart.length > 0" ref="PaymentBtn" class="p-2 my-2 w-full bg-green-600 text-white text-xl" @click="payNow">
-            <span v-html="currencySymbol(pos[0].currency)"></span> Pay Now
+             Pay Now
           </button>
         </div>
 
@@ -176,6 +176,8 @@ const qz = require("qz-tray");
             this.$nextTick(() => {
               this.$refs.cashInput.focus();
             });
+
+            
           }
         }
     },
@@ -198,7 +200,7 @@ const qz = require("qz-tray");
         return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
-        return this.subtotal - this.discountAmount;
+        return this.subtotal.toFixed(2) - this.discountAmount;
       },
       amountGiven(){
         let amount = parseFloat(this.cash)+parseFloat(this.bankCard);
@@ -365,7 +367,7 @@ const qz = require("qz-tray");
             });
             
             this.printInvoice(this.invoiceNo);
-            alert('Invoice saved in ERPNext and sent to ZATCA successfully!');
+            alert('Invoice saved and sent to ZATCA successfully!');
             this.ClearOrder()
             this.showPayment =false;
           });
@@ -408,7 +410,7 @@ const qz = require("qz-tray");
       try {
         this.configureQZTray();
         // Fetch the print layout from ERPNext
-        const printFormat = 'Standard'; // Set your print format here
+        const printFormat = 'KSA POS Invoice'; // Set your print format here
         var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
         console.log(targetUrl)
         const response = await fetch(targetUrl,

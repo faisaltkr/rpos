@@ -1,10 +1,14 @@
 <template>
-  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-full h-screen overflow-hidden">
-    <HeaderNav />
-    
-    <!-- <iframe src="http://dev14.erpx.one/report/Cheques and Deposits Incorrectly cleared" width="100%" height="100%"></iframe> -->
 
-  </div>
+<div class="flex flex-col w-screen h-screen bg-gray-800 text-white">
+      
+    <HeaderNav></HeaderNav>
+
+
+    <h2 class="m-5">Coming Soon ...</h2>
+
+</div>
+
 </template>
 
 
@@ -43,7 +47,7 @@ export default {
    
   },
   mounted() {
-    this.getReport()
+    //this.getReport()
   },
 };
 </script>

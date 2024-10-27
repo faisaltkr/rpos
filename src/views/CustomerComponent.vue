@@ -4,24 +4,26 @@
     <HeaderNav />
   
 
-    <div class="form-container max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
-      <h2 class="text-3xl font-semibold mb-6">{{ $t('createCustomer') }}</h2>
+    <h1>Coming Soon</h1>
+
+    <!-- <div class="form-container mx-auto p-8 shadow-md bg-gray-700">
+      <h2 class="text-3xl font-semibold mb-6">{{ $t('CreateCustomer') }}</h2>
 
       <form @submit.prevent="registerCustomer">
-        <!-- Customer Name -->
+       
         <div class="form-group mb-6">
           <label for="customerName" class="block text-sm font-medium">{{ $t('customerName') }}</label>
           <input 
             type="text" 
             id="customerName" 
             v-model="customer.name" 
-            class="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-500"
+            class="mt-2 block w-full p-3 border border-gray-300 focus:outline-none focus:ring focus:border-blue-500"
             placeholder="Enter Customer Name"
             required 
           />
         </div>
 
-        <!-- Customer Code -->
+       
         <div class="form-group mb-6">
           <label for="customerCode" class="block text-sm font-medium">{{ $t('customerCode') }}</label>
           <input 
@@ -34,7 +36,6 @@
           />
         </div>
 
-        <!-- Address -->
         <div class="form-group mb-6">
           <label for="address" class="block text-sm font-medium">{{ $t('address') }}</label>
           <textarea 
@@ -46,7 +47,7 @@
           ></textarea>
         </div>
 
-        <!-- Customer Type (Cash or Credit) -->
+       
         <div class="form-group mb-6">
           <label for="customerType" class="block text-sm font-medium">{{ $t('customerType') }}</label>
           <select 
@@ -60,7 +61,7 @@
           </select>
         </div>
 
-        <!-- Mobile -->
+      
         <div class="form-group mb-6">
           <label for="mobile" class="block text-sm font-medium">{{ $t('mobile') }}</label>
           <input 
@@ -73,7 +74,7 @@
           />
         </div>
 
-        <!-- Place -->
+       
         <div class="form-group mb-6">
           <label for="place" class="block text-sm font-medium">{{ $t('place') }}</label>
           <input 
@@ -86,7 +87,7 @@
           />
         </div>
 
-        <!-- Submit Button -->
+  
         <button 
           type="submit" 
           class="w-full bg-blue-500 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
@@ -94,8 +95,11 @@
           {{ $t('register') }}
         </button>
       </form>
-    </div>
+    </div> -->
+
   </div>
+
+  
 </template>
 
 <script>

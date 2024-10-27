@@ -33,14 +33,14 @@
     
     <div class="sales-table mt-10 m-2">
       <h2 class="text-xl font-semibold mb-4">{{ $t('recentSales') }}</h2>
-      <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+      <table class="min-w-full bg-white rounded-lg shadow-md overflow-y-scroll">
         <thead>
           <tr>
             <th class="py-2 px-4 border-b">{{ $t('salesDate') }}</th>
             <th class="py-2 px-4 border-b">{{ $t('invoiceNo') }}</th>
             <th class="py-2 px-4 border-b">{{ $t('customer') }}</th>
-            <th class="py-2 px-4 border-b">{{ $t('amount') }}</th>
-            <th class="py-2 px-4 border-b">{{ $t('salesman') }}</th>
+            <th class="py-2 px-4 border-b">{{ $t('Amount') }}</th>
+            <th class="py-2 px-4 border-b">{{ $t('SalesMan') }}</th>
             <th class="py-2 px-4 border-b">{{ $t('zatca_status') }}</th>
           </tr>
         </thead>
@@ -50,7 +50,7 @@
             <td class="py-2 px-4 border-b">{{ sale.name }}</td>
             <td class="py-2 px-4 border-b">{{ sale.customer_name }}</td>
 
-            <td class="py-2 px-4 border-b"><span v-html="currencySymbol(salesPersons[0].currency)"></span>{{ sale.grand_total }}</td>
+            <td class="py-2 px-4 border-b text-right">{{ sale.grand_total.toFixed(2) }}</td>
             <td class="py-2 px-4 border-b">{{ sale.pos_profile }}</td>
             <td class="py-2 px-4 border-b">{{ sale.custom_zatca_status }}</td>
           </tr>
@@ -182,8 +182,8 @@ export default {
       salesData:[],
       showPopup: true,
       posUser: "",
-      cash: "",
-      bankCard: "",
+      cash: 0,
+      bankCard: 0,
       netTotal: 0,
       taxAndCharges: this.vatTotal ? this.vatTotal : 0,
       totalAmount: '',
@@ -196,7 +196,7 @@ export default {
       salesPersons: [],
       company : '',
       payment_methods: [],
-      user:{},
+      user :JSON.parse(localStorage.getItem('user')) ,
       currency:"SAR",
       pos_profile:""
     };
@@ -207,6 +207,11 @@ export default {
     this.salesPersons = (localStorage.getItem('pos')) ?  (JSON.parse(localStorage.getItem('pos'))) : [];
     this.getCompany()
     this.openingEntry = (localStorage.getItem('openingEntry')) ?  false : true;
+  },
+  computed(){
+    // totalSalesAmount(item){
+    //     return this.totalSales = this.totalSales+item.amount;
+    // }
   },
   methods: {
     async fetchDashboardData() {
@@ -258,62 +263,66 @@ export default {
         return this.salesPersons.filter((value, index, self) => self.findIndex(v => v.company === value.company) === index);
      },
 
-
-
-
      async createPOSOpeningEntry() {
+  const data = {
+    "company": this.company,
+    "posting_date": moment(new Date()).format('YYYY-MM-DD'),
+    "pos_profile": this.pos_profile,
+    "user": this.user.email.toString(),
+    "period_start_date": moment(new Date()).format('YYYY-MM-DD'),
+    "balance_details": this.payment_methods
+      .filter(method => method.mode) // Ensure mode_of_payment is present
+      .map(method => ({
+        mode_of_payment: method.mode,
+        opening_amount: (method.mode === 'Cash') ? this.cash : this.bankCard
+      })),
+  };
+  
+  localStorage.setItem('openingEntry', JSON.stringify(data));
+  this.openingEntry = (localStorage.getItem('openingEntry')) ? false : true;
 
-      const data = {
-        "company": this.company,
-        "posting_date": moment(new Date()).format('YYYY-MM-DD'),
-        "pos_profile": this.pos_profile,
-        "user": this.user.email.toString(),
-        "period_start_date": moment(new Date()).format('YYYY-MM-DD'),
-        "balance_details": this.payment_methods
-              .filter(method => method.mode) // Ensure mode_of_payment is present
-              .map(method => ({
-                mode_of_payment: method.mode,
-                opening_amount: (method.mode === 'Cash') ? this.cash : this.bankCard
-          })),
-        }
-      localStorage.setItem('openingEntry', JSON.stringify(data))
-      this.openingEntry = (localStorage.getItem('openingEntry')) ?  false : true;
+  try {
+    const url = `${this.baseURL}/api/resource/POS Opening Entry`;
+    const token = localStorage.getItem('token'); 
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${token}`, 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
 
-        console.log(this.openingEntry);
-        
-      try {
-        const url = `${this.baseURL}/api/resource/POS Opening Entry`;
-        const token = localStorage.getItem('token'); // Replace with yo
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${token}`, // Set your authorization header
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
-      
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const result = await response.json();
-        console.log(result);
-        const submit_url =`${this.baseURL}/api/resource/POS Opening Entry/${result.data.name}/submit`; 
-        const submited = await fetch(submit_url, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${token}`, // Set your authorization header
-            'Content-Type': 'application/json'
-          },
-        });
-        alert('POS Opening Entry created successfully')
-        console.log('POS Opening Entry created successfully:',submited);
-      } catch (error) {
-        console.error('Error creating POS Opening Entry:', error);
-      }
-
-      
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+    
+    const result = await response.json();
+    console.log('POS Opening Entry created successfully:', result);
+
+    // Submitting the POS Opening Entry
+    //https://dev14.erpx.one/api/method/frappe.desk.form.save.savedocs
+    const submitUrl = `${this.baseURL}/api/resource/POS Opening Entry/${result.data.name}/action`;
+    const submitResponse = await fetch(submitUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: "Submit" }) // Specify the submit action
+    });
+
+    if (!submitResponse.ok) {
+      throw new Error(`HTTP error while submitting! Status: ${submitResponse.status}`);
+    }
+
+    alert('POS Opening Entry created and submitted successfully');
+    console.log('POS Opening Entry submitted successfully:', await submitResponse.json());
+  } catch (error) {
+    console.error('Error creating or submitting POS Opening Entry:', error);
+  }
+}
+
 
   },
 

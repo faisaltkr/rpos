@@ -292,3 +292,10 @@ table input:focus {
   .overflow-y-auto {
   overflow-y: auto;
   }
+
+
+.active-link{
+  background-color: #ddd;
+  padding: 0.7rem 5px 0.79rem 5px;
+  color: #000 !important;
+}

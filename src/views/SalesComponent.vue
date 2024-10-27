@@ -1,5 +1,5 @@
 <template>
-  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-screen h-screen overflow-hidden">
+  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-screen h-screen overflow-hidden bg-gray-700">
     <HeaderNav/>
     
     <form @submit.prevent>
@@ -330,9 +330,9 @@ export default {
           tax: item?.tax_details?.tax_rate ?? 15,
           qty: 1,
           uom: 'Nos',
-          sRate: item.standard_rate,
-          sellingPrice: item.standard_rate,
-          purchasePrice: item.standard_rate * 0.8,  // Assuming purchase price is 80% of selling price for demo
+          sRate: item.price,
+          sellingPrice: item.price,
+          purchasePrice: item.price * 0.8,  // Assuming purchase price is 80% of selling price for demo
           stock: item.is_stock_item
         }));
       } catch (error) {

@@ -57,7 +57,7 @@ export default {
       this.updateTotal();
     },
     updateTotal() {
-      this.total = this.cartItems.reduce((acc, item) => acc + item.standard_rate, 0);
+      this.total = this.cartItems.reduce((acc, item) => acc + item.price, 0);
     },
     handleSearch(query) {
       this.searchQuery = query;

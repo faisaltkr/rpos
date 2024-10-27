@@ -189,15 +189,15 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
       if (existingItem) {
         // Update quantity and total
         existingItem.quantity += 1;
-        existingItem.total = existingItem.quantity * item.standard_rate; // Ensure to calculate the total based on quantity
+        existingItem.total = existingItem.quantity * item.price; // Ensure to calculate the total based on quantity
       } else {
         // Add new item to the cart
         this.cart.push({
           item_code: item.item_code,
           name: item.item_name,
           quantity: 1,
-          price: item.standard_rate,
-          total: item.standard_rate, // Initialize total for new item
+          price: item.price,
+          total: item.price, // Initialize total for new item
           vatRate: (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate : 0
         });
       }
@@ -214,8 +214,8 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
     },
       calculateTotals() {
         this.cart.forEach(item => {
-          if (item.standard_rate && item.quantity) {
-            item.total = (item.standard_rate * item.quantity).toFixed(2)
+          if (item.price && item.quantity) {
+            item.total = (item.price * item.quantity).toFixed(2)
           } else {
             item.total = 0
           }
