@@ -164,6 +164,7 @@ const qz = require("qz-tray");
             openingEntry:JSON.parse(localStorage.getItem('openingEntry')),
             printerName: 'Save as PDF',
             qzInitialized: false,
+            settings: localStorage.getItem('settings') ? JSON.parse(localStorage.getItem('settings')) : "",
         }
     },
     props: {
@@ -428,7 +429,13 @@ const qz = require("qz-tray");
         
 
         // Prepare print data for QZ Tray
-        const config = qz.configs.create(this.printerName);
+        if(this.settings)
+        {
+          const config = qz.configs.create(this.settings.printer);
+        }else{
+          const config = qz.configs.create("save as PDF");
+        }
+        
         const data = [{
           type: 'pdf',
           format: 'base64',
