@@ -17,7 +17,7 @@
           type="submit" 
           class=" bg-blue-500 text-white p-3 mt-2 font-semibold hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
         >
-          {{ $t('register') }}
+          {{ 'Save' }}
         </button>
         </form>
       </div>
@@ -47,7 +47,20 @@ export default {
   },
   data() {
     return {
-      settings: JSON.parse(localStorage.getItem('settings'))
+      settings:{
+        printer : ""
+      }
+    }
+  },
+
+  created(){
+    const savedSettings = localStorage.getItem('settings');
+    if (savedSettings) {
+      this.settings = JSON.parse(savedSettings);
+    } else {
+      this.settings = {
+        printer: ''
+      };
     }
   },
 
@@ -55,7 +68,6 @@ export default {
 
     async saveSettings() {
       localStorage.setItem('settings',JSON.stringify(this.settings))
-      this.settings = JSON.parse(localStorage.getItem('settings'))
       alert('Settings Saved Successfully');
     },
 

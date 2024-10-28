@@ -5,24 +5,24 @@
           No items
         </div>
         <div v-else>
-          <div class="grid grid-cols-8 p-2 border-b tex-lg text-sm font-bold-lg">
-            <span>Sl No</span>
-            <span class="col-span-2">Item Name</span>
-            <span>Rate</span>
-            <span>QTY</span>
-            <span>Vat</span>
-            <span>Total</span>
-            <span>Delete</span>
+          <div class="grid grid-cols-9 p-2 border-b tex-lg text-sm font-bold-lg">
+            <span class="text-left" >S.No</span>
+            <span class="text-left col-span-3">Item Name</span>
+            <span class="text-right">Rate</span>
+            <span class="text-right">QTY</span>
+            <span class="text-right">Vat</span>
+            <span class="text-right">Total</span>
+            <span class="text-right">Del</span>
           </div>
-          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-8 p-2 border-b">
-            <span>{{ index+1 }}</span>
+          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 p-2 border-b" @click="editQty(item)">
+            <span class="text-left">{{ index+1 }}</span>
            
-            <span class="col-span-2">{{ item.name }}</span>
-            <span>{{ item.price }}</span>
-            <span>{{ item.quantity }}</span>
-            <span>{{ item.vat.toFixed(2) }}</span>
-            <span>{{ item.total.toFixed(2) }}</span>
-            <span><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
+            <span class="text-left col-span-3">{{ item.name }}</span>
+            <span class="text-right">{{ item.price }}</span>
+            <span class="text-right">{{ item.quantity }}</span>
+            <span class="text-right">{{ item.vat.toFixed(2) }}</span>
+            <span class="text-right">{{ item.total.toFixed(2) }}</span>
+            <span class="text-right"><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
           </div>
         </div>
       </div>
@@ -124,6 +124,32 @@
       </div>
     </div>
 
+
+    <div v-if="showEdit" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div class="bg-gray-600 shadow-lg p-6 w-full max-w-xl">
+
+        <div class="grid grid-cols-1 gap-4">
+          <!-- Payment fields -->
+          <div>
+            <label class="block text-white">Update Quantity</label>
+            <input type="text" class="text-white  w-full p-4 text-4xl" v-model="cartUpdate.qty" />
+          </div>
+          
+        </div>
+          
+          <div class="grid grid-cols-2 gap-4 mt-3">
+          <div>
+            <button @click="updateItemQuantity(cartUpdate.item_code, cartUpdate.qty)" class="w-full bg-green-500 text-white px-2 py-2">Save</button>
+          </div>
+
+          <div >
+            <button @click="showEdit=false" class="w-full bg-red-500 text-white px-2 py-2">Close</button>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
     </div>
   </template>
   
@@ -138,6 +164,7 @@ const qz = require("qz-tray");
   export default {
     data(){
         return{
+            showEdit:false,
             cash_disabled:false,
             bank_disabled:true,
             balance_disabled:false,
@@ -165,6 +192,10 @@ const qz = require("qz-tray");
             printerName: 'Save as PDF',
             qzInitialized: false,
             settings: localStorage.getItem('settings') ? JSON.parse(localStorage.getItem('settings')) : "",
+            cartUpdate:{
+              qty:0,
+              item_code:0
+            }
         }
     },
     props: {
@@ -234,25 +265,50 @@ const qz = require("qz-tray");
     },
     methods: {
       configureQZTray() {
-      qz.security.setCertificatePromise((resolve, reject) => {
-        console.log(reject);
-        
-        resolve("-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----");
-      });
-
-      qz.security.setSignaturePromise((toSign) => {
-        return function(resolve, reject) {
+        qz.security.setCertificatePromise(function(resolve, reject) {
+          resolve("digital-certificate.txt");
           console.log(reject);
-          console.log(toSign);
-          resolve("signed_data_here");
-        };
-      });
+          
+        });
+
+        qz.security.setSignaturePromise((toSign) => {
+            return function(resolve, reject) {
+                // Use the pem file for signing
+                resolve("private-key.pem");
+            };
+        });
 
       qz.websocket.connect().catch((err) => {
         console.error("QZ Tray connection failed", err);
       });
     },
 
+
+        editQty(item)
+        {
+            console.log(item);
+            
+            this.showEdit = true;
+            this.cartUpdate.qty = item.quantity;
+            this.cartUpdate.item_code = item.item_code;
+        },
+        updateItemQuantity(itemCode, newQuantity) {
+  // Find the item in the cart based on its item_code
+          const item = this.cart.find(cartItem => cartItem.item_code === itemCode);
+
+          // If the item exists, update its quantity and recalculate total and VAT
+          if (item) {
+            item.quantity = newQuantity;
+            const baseTotal = (item.price * item.quantity) || 0;
+            const vatAmount = (baseTotal * item.vatRate) / 100 || 0;
+            item.total = baseTotal + vatAmount;
+            item.vat = vatAmount;
+
+            this.showEdit = false;
+          } else {
+            console.warn('Item not found in cart');
+          }
+        },
 
         Cashfocus(input){
             input.focus()
@@ -425,22 +481,24 @@ const qz = require("qz-tray");
         const pdfBlob = await response.blob();
         const pdfData = await pdfBlob.arrayBuffer();
 
-        console.log(pdfData,"==============================");
+        // console.log(pdfData,"==============================");
         
 
         // Prepare print data for QZ Tray
-        if(this.settings)
-        {
-          const config = qz.configs.create(this.settings.printer);
-        }else{
-          const config = qz.configs.create("save as PDF");
-        }
+        let Newprinter = this.settings ? this.settings.printer : "Microsoft Print to PDF";
+
+        const config = qz.configs.create(Newprinter);
+
+        const base64String = this.arrayBufferToBase64(pdfData);
         
         const data = [{
-          type: 'pdf',
-          format: 'base64',
-          data: btoa(String.fromCharCode(...new Uint8Array(pdfData)))
+          type: 'pixel',
+          format: 'pdf',
+          flavor: 'base64',
+          data: base64String
         }];
+
+        console.log(data);
 
         // Send print job to the printer
         await qz.print(config, data);
@@ -448,6 +506,17 @@ const qz = require("qz-tray");
       } catch (error) {
         console.error('Error printing invoice:', error);
       }
+    },
+
+    arrayBufferToBase64(buffer) {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      // Encode the binary string as Base64
+      return window.btoa(binary);
     }
 
     },
