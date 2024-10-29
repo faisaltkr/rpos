@@ -271,8 +271,8 @@ const qz = require("qz-tray");
           
         });
 
-        qz.security.setSignaturePromise((toSign) => {
-            return function(resolve, reject) {
+        qz.security.setSignaturePromise(() => {
+            return function(resolve) {
                 // Use the pem file for signing
                 resolve("private-key.pem");
             };

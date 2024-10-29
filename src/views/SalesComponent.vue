@@ -540,8 +540,28 @@ export default {
     
     },
     printInvoice(invoiceId) {
+
+      // PRINT CODE
+      console.log(window.JSPM, invoiceId)
+      if(window.JSPM) {
+        window.JSPM.JSPrintManager.auto_reconnect = true;
+        window.JSPM.JSPrintManager.start();
+        window.JSPM.JSPrintManager.WS.onStatusChanged = function () {
+            if (window.JSPM.JSPrintManager.websocket_status == window.JSPM.WSStatus.Open) {
+                var cpj = new window.JSPM.ClientPrintJob();
+                cpj.clientPrinter = new window.JSPM.DefaultPrinter();
+                var my_file1 = new window.JSPM.PrintFilePDF('../../images/test.pdf', window.JSPM.FileSourceType.URL, 'MyFile.pdf', 1);
+                cpj.files.push(my_file1);
+                cpj.sendToClient();
+            }
+        };
+      }
+      
+      // END PRINT CODE
+
+
         // Use ERPNext's built-in print format for invoices
-        window.open(`http://dev14.erpx.one/printview?doctype=Sales Invoice&name=${invoiceId}&token=${localStorage.getItem('token')}&format=Standard&no_letterhead=0`, '_blank');
+        // window.open(`http://dev14.erpx.one/printview?doctype=Sales Invoice&name=${invoiceId}&token=${localStorage.getItem('token')}&format=Standard&no_letterhead=0`, '_blank');
     },
     clear() {
       this.input = "";
