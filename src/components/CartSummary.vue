@@ -158,7 +158,7 @@ import axios from 'axios';
 
 import moment from 'moment';
 
-const qz = require("qz-tray");
+
 // import PaymentModal from './PaymentModal.vue';
 
   export default {
@@ -190,7 +190,6 @@ const qz = require("qz-tray");
             salesPerson: '',
             openingEntry:JSON.parse(localStorage.getItem('openingEntry')),
             printerName: 'Save as PDF',
-            qzInitialized: false,
             settings: localStorage.getItem('settings') ? JSON.parse(localStorage.getItem('settings')) : "",
             cartUpdate:{
               qty:0,
@@ -218,12 +217,9 @@ const qz = require("qz-tray");
     },
     mounted(){
       this.pos_profile = this.openingEntry.pos_profile;
-      this.configureQZTray();
+
     },
-    beforeUnmount() {
-    // Disconnect QZ Tray when the component is destroyed
-    qz.websocket.disconnect();
-  },
+
     computed: {
       subtotal() {
         return this.cart.reduce((acc, item) => acc + (item.total ? parseFloat(item.total) : 0), 0);
@@ -264,24 +260,7 @@ const qz = require("qz-tray");
       
     },
     methods: {
-      configureQZTray() {
-        qz.security.setCertificatePromise(function(resolve, reject) {
-          resolve("digital-certificate.txt");
-          console.log(reject);
-          
-        });
 
-        qz.security.setSignaturePromise(() => {
-            return function(resolve) {
-                // Use the pem file for signing
-                resolve("private-key.pem");
-            };
-        });
-
-      qz.websocket.connect().catch((err) => {
-        console.error("QZ Tray connection failed", err);
-      });
-    },
 
 
         editQty(item)
@@ -465,7 +444,22 @@ const qz = require("qz-tray");
 
     async printInvoice(invoiceName) {
       try {
-        this.configureQZTray();
+
+        console.log(window.JSPM, invoiceId)
+        if(window.JSPM) {
+          window.JSPM.JSPrintManager.auto_reconnect = true;
+          window.JSPM.JSPrintManager.start();
+          window.JSPM.JSPrintManager.WS.onStatusChanged = function () {
+              if (window.JSPM.JSPrintManager.websocket_status == window.JSPM.WSStatus.Open) {
+                  var cpj = new window.JSPM.ClientPrintJob();
+                  cpj.clientPrinter = new window.JSPM.DefaultPrinter();
+                  var my_file1 = new window.JSPM.PrintFilePDF('../../images/test.pdf', window.JSPM.FileSourceType.URL, 'MyFile.pdf', 1);
+                  cpj.files.push(my_file1);
+                  cpj.sendToClient();
+              }
+          };
+        }
+        
         // Fetch the print layout from ERPNext
         const printFormat = 'KSA POS Invoice'; // Set your print format here
         var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
@@ -481,32 +475,19 @@ const qz = require("qz-tray");
         const pdfBlob = await response.blob();
         const pdfData = await pdfBlob.arrayBuffer();
 
-        // console.log(pdfData,"==============================");
-        
 
-        // Prepare print data for QZ Tray
-        let Newprinter = this.settings ? this.settings.printer : "Microsoft Print to PDF";
-
-        const config = qz.configs.create(Newprinter);
-
-        const base64String = this.arrayBufferToBase64(pdfData);
-        
-        const data = [{
-          type: 'pixel',
-          format: 'pdf',
-          flavor: 'base64',
-          data: base64String
-        }];
-
-        console.log(data);
+        console.log(pdfData);
 
         // Send print job to the printer
-        await qz.print(config, data);
+
         console.log('Print job sent successfully!');
       } catch (error) {
         console.error('Error printing invoice:', error);
       }
     },
+
+
+    
 
     arrayBufferToBase64(buffer) {
       let binary = '';
