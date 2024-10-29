@@ -442,50 +442,91 @@ import moment from 'moment';
     //   }
     // },
 
-    async printInvoice(invoiceName) {
-      try {
+    // async printInvoice(invoiceName) {
+    //   try {
+    //     const printFormat = 'KSA POS Invoice'; 
+    //     let targetUrl = this.baseURL+`/printview?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}&no_letterhead=0`;
+        // var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
+        // const response = await fetch(targetUrl,{
 
-        console.log(window.JSPM, invoiceId)
-        if(window.JSPM) {
-          window.JSPM.JSPrintManager.auto_reconnect = true;
-          window.JSPM.JSPrintManager.start();
-          window.JSPM.JSPrintManager.WS.onStatusChanged = function () {
-              if (window.JSPM.JSPrintManager.websocket_status == window.JSPM.WSStatus.Open) {
-                  var cpj = new window.JSPM.ClientPrintJob();
-                  cpj.clientPrinter = new window.JSPM.DefaultPrinter();
-                  var my_file1 = new window.JSPM.PrintFilePDF('../../images/test.pdf', window.JSPM.FileSourceType.URL, 'MyFile.pdf', 1);
-                  cpj.files.push(my_file1);
-                  cpj.sendToClient();
-              }
-          };
-        }
-        
-        // Fetch the print layout from ERPNext
-        const printFormat = 'KSA POS Invoice'; // Set your print format here
-        var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
-        console.log(targetUrl)
-        const response = await fetch(targetUrl,
-          {
-            responseType: 'arraybuffer',
-            headers: {
-              Authorization: 'Basic '+localStorage.getItem('token'),
-            }
-          }
-        );
-        const pdfBlob = await response.blob();
-        const pdfData = await pdfBlob.arrayBuffer();
-
-
-        console.log(pdfData);
-
+        //     headers: {
+        //       Authorization: 'Basic '+localStorage.getItem('token'),
+        //     }
+        //   }
+        // );
+      
+         // console.log(window.JSPM, invoiceId)
+        // if(window.JSPM) {
+        //   window.JSPM.JSPrintManager.auto_reconnect = true;
+        //   window.JSPM.JSPrintManager.start();
+        //   window.JSPM.JSPrintManager.WS.onStatusChanged = function () {
+        //       if (window.JSPM.JSPrintManager.websocket_status == window.JSPM.WSStatus.Open) {
+        //           var cpj = new window.JSPM.ClientPrintJob();
+        //           cpj.clientPrinter = new window.JSPM.DefaultPrinter();
+        //           var my_file1 = new window.JSPM.PrintFilePDF(response, window.JSPM.FileSourceType.URL, 'MyFile.pdf', 1);
+        //           cpj.files.push(my_file1);
+        //           cpj.sendToClient();
+        //       }
+        //   };
+        // }
         // Send print job to the printer
 
-        console.log('Print job sent successfully!');
-      } catch (error) {
-        console.error('Error printing invoice:', error);
-      }
-    },
+    //     console.log('Print job sent successfully!');
+    //   } catch (error) {
+    //     console.error('Error printing invoice:', error);
+    //   }
+    // },
 
+
+    async printInvoice(invoiceName) {
+  try {
+    const printFormat = 'KSA POS Invoice'; 
+    const targetUrl = `${this.baseURL}/printview?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}&no_letterhead=0`;
+
+    // Fetch the PDF file from ERPNext
+    const response = await fetch(targetUrl, {
+      headers: {
+        Authorization: 'Basic ' + localStorage.getItem('token'),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch PDF: ${response.statusText}`);
+    }
+
+    const pdfBlob = await response.blob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    if (window.JSPM) {
+      window.JSPM.JSPrintManager.auto_reconnect = true;
+      await window.JSPM.JSPrintManager.start();
+
+      window.JSPM.JSPrintManager.WS.onStatusChanged = () => {
+        if (window.JSPM.JSPrintManager.websocket_status === window.JSPM.WSStatus.Open) {
+          const cpj = new window.JSPM.ClientPrintJob();
+          cpj.clientPrinter = new window.JSPM.DefaultPrinter();
+
+          // Use the PDF blob URL and ensure the print command is using it as a file URL
+          const myFile = new window.JSPM.PrintFilePDF(
+            pdfUrl,
+            window.JSPM.FileSourceType.URL,
+            'Sales_Invoice.pdf',
+            1
+          );
+
+          cpj.files.push(myFile);
+          cpj.sendToClient();
+        }
+      };
+    } else {
+      console.error('JSPrintManager is not available in this environment.');
+    }
+
+    console.log('Print job sent successfully!');
+  } catch (error) {
+    console.error('Error printing invoice:', error);
+  }
+},
 
     
 

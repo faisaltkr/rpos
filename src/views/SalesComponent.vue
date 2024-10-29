@@ -27,6 +27,7 @@
           </div>
         </div>
         <table width="100%" class="table-noborder">
+          <tbody>
             <tr>
               <td width="10%"><span class="p-1">{{ $t('invoiceNo') }}</span></td>
               <td width="10%"><input type="text" v-model="invoiceNo" @keydown.enter="focusNext($event)" /></td>
@@ -34,7 +35,9 @@
               <td width="20%"><input type="text" v-model="salesDate" @keydown.enter="focusNext($event)" /></td>
               <td width="50%"></td>
             </tr>
-
+          
+          
+         
             <tr>
               <td width="10%"><span class="p-1">{{ $t('customer') }}</span></td>
               <td width="10%"><input placeholder="Search Code" type="text" v-model="customerCodeQuery" 
@@ -53,6 +56,7 @@
               <td width="10%" class="text-right"><span class="p-1">{{ $t('address') }}</span></td>
               <td width="20%"><textarea class="address" v-model="customer.address" @keydown.enter="focusNext($event)" /></td>
             </tr>
+          </tbody>
         </table>
 
 
