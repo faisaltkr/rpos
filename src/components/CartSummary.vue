@@ -132,24 +132,25 @@
           <!-- Payment fields -->
           
           <div>
-           <button @click="increment()" class="w-full bg-green-500 text-white p-4 text-3xl">+</button>
+           <button @click="increment()" class="w-full bg-green-500 text-white p-4 text-4xl">+</button>
           </div>
           <div>
             <input type="text" class="text-center text-white  w-full p-4 text-4xl" v-model="cartUpdate.qty" />
           </div>
           <div>
-            <button @click="decrement()" class="w-full bg-green-500 text-white p-4 text-3xl">-</button>
+            <button @click="decrement()" class="w-full bg-green-500 text-white p-4 text-4xl">-</button>
           </div>
           
         </div>
           
           <div class="grid grid-cols-2 gap-4 mt-3">
-          <div>
-            <button @click="updateItemQuantity(cartUpdate.item_code, cartUpdate.qty)" class="w-full bg-green-500 text-white px-2 py-2">Save</button>
-          </div>
+
 
           <div >
             <button @click="showEdit=false" class="w-full bg-red-500 text-white px-2 py-2">Close</button>
+          </div>
+          <div>
+            <button @click="updateItemQuantity(cartUpdate.item_code, cartUpdate.qty)" class="w-full bg-green-500 text-white px-2 py-2">OK</button>
           </div>
         </div>
         
@@ -229,13 +230,14 @@ import moment from 'moment';
     computed: {
       
       subtotal() {
-        return this.cart.reduce((acc, item) => acc + (item.total ? parseFloat(item.total) : 0), 0);
+        var t= this.cart.reduce((acc, item) => acc + (item.total ? parseFloat(item.total) : 0), 0);
+        return t-this.vat
       },
       vat() {
         return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
-        return this.subtotal.toFixed(2) - this.discountAmount;
+        return this.subtotal + this.vat - this.discountAmount;
       },
       amountGiven(){
         let amount = parseFloat(this.cash)+parseFloat(this.bankCard);
