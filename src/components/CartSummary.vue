@@ -132,20 +132,18 @@
           <!-- Payment fields -->
           
           <div>
-           <button @click="increment()" class="w-full bg-green-500 text-white p-4 text-4xl">+</button>
+            <button @click="decrement()" class="w-full bg-green-500 text-white p-4 text-4xl">-</button>
           </div>
           <div>
             <input type="text" class="text-center text-white  w-full p-4 text-4xl" v-model="cartUpdate.qty" />
           </div>
           <div>
-            <button @click="decrement()" class="w-full bg-green-500 text-white p-4 text-4xl">-</button>
+           <button @click="increment()" class="w-full bg-green-500 text-white p-4 text-4xl">+</button>
           </div>
           
         </div>
           
           <div class="grid grid-cols-2 gap-4 mt-3">
-
-
           <div >
             <button @click="showEdit=false" class="w-full bg-red-500 text-white px-2 py-2">Close</button>
           </div>
