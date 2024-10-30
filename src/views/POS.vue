@@ -239,7 +239,8 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
       DeskLock(){
           this.showLock = 1;
           localStorage.setItem('showLock',1);
-          localStorage.setItem('lock_password','123456');
+          var loggedpwd = localStorage.getItem('password');
+          localStorage.setItem('lock_password',loggedpwd);
           this.lock_password=""
       },
 

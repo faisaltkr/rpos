@@ -14,12 +14,12 @@
             <span class="text-right">Total</span>
             <span class="text-right">Del</span>
           </div>
-          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 p-2 border-b" @click="editQty(item)">
+          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 p-2 border-b" >
             <span class="text-left">{{ index+1 }}</span>
            
             <span class="text-left col-span-3">{{ item.name }}</span>
             <span class="text-right">{{ item.price }}</span>
-            <span class="text-right">{{ item.quantity }}</span>
+            <span class="bg-gray-600 m-1 text-right" @click="editQty(item)">{{ item.quantity }}</span>
             <span class="text-right">{{ item.vat.toFixed(2) }}</span>
             <span class="text-right">{{ item.total.toFixed(2) }}</span>
             <span class="text-right"><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
@@ -127,12 +127,18 @@
 
     <div v-if="showEdit" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
       <div class="bg-gray-600 shadow-lg p-6 w-full max-w-xl">
-
-        <div class="grid grid-cols-1 gap-4">
+        <label class="block text-white">Update Quantity</label>
+        <div class="grid grid-cols-3 gap-4">
           <!-- Payment fields -->
+          
           <div>
-            <label class="block text-white">Update Quantity</label>
-            <input type="text" class="text-white  w-full p-4 text-4xl" v-model="cartUpdate.qty" />
+           <button @click="increment()" class="w-full bg-green-500 text-white p-4 text-3xl">+</button>
+          </div>
+          <div>
+            <input type="text" class="text-center text-white  w-full p-4 text-4xl" v-model="cartUpdate.qty" />
+          </div>
+          <div>
+            <button @click="decrement()" class="w-full bg-green-500 text-white p-4 text-3xl">-</button>
           </div>
           
         </div>
@@ -221,6 +227,7 @@ import moment from 'moment';
     },
 
     computed: {
+      
       subtotal() {
         return this.cart.reduce((acc, item) => acc + (item.total ? parseFloat(item.total) : 0), 0);
       },
@@ -261,6 +268,14 @@ import moment from 'moment';
     },
     methods: {
 
+      increment() {
+      this.cartUpdate.qty += 1;
+    },
+    decrement() {
+      if (this.cartUpdate.qty > 0) {
+        this.cartUpdate.qty -= 1;
+      }
+    },
 
 
         editQty(item)
