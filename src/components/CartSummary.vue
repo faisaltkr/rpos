@@ -20,8 +20,8 @@
             <span class="text-left col-span-3">{{ item.name }}</span>
             <span class="text-right">{{ item.price }}</span>
             <span class="bg-gray-600 m-1 text-right" @click="editQty(item)">{{ item.quantity }}</span>
-            <span class="text-right">{{ item.vat.toFixed(2) }}</span>
-            <span class="text-right">{{ item.total.toFixed(2) }}</span>
+            <span class="text-right">{{ Math.round(item.vat) }}</span>
+            <span class="text-right">{{ Math.round(item.total) }}</span>
             <span class="text-right"><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
           </div>
         </div>
@@ -31,15 +31,15 @@
         <div class="flex justify-between mb-2">
           <span>Subtotal:</span>
           
-          <span>{{ subtotal.toFixed(2) }}</span>
+          <span>{{ Math.round(subtotal) }}</span>
         </div>
         <div class="flex justify-between mb-2">
           <span>VAT:</span>
-          <span>{{ vat.toFixed(2) }}</span>
+          <span>{{  Math.round(vat) }}</span>
         </div>
         <div class="flex justify-between font-bold mb-4">
           <span>Total:</span>
-          <span>{{ total.toFixed(2) }}</span>
+          <span>{{  Math.round(total) }}</span>
           
         </div>
         <div class="flex justify-between ">
@@ -64,6 +64,7 @@
           <div>
             <label class="block text-white">Payable Amount</label>
             <input type="text" class="text-white  w-full p-4 text-4xl" v-model="total" />
+            <!-- <span class="text-white  w-full p-4 text-4xl bg-gray-800"></span> -->
           </div>
           <div>
             <label class="block text-white">Discount Amount</label>
@@ -250,7 +251,7 @@ import * as JSPM from 'jsprintmanager';
         return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
-        return this.subtotal + this.vat - this.discountAmount;
+        return  Math.round(this.subtotal + this.vat - this.discountAmount);
       },
       amountGiven(){
         let amount = parseFloat(this.cash)+parseFloat(this.bankCard);
@@ -262,7 +263,8 @@ import * as JSPM from 'jsprintmanager';
       balance(){
           if(this.cash > 0 || this.bankCard > 0){
             let amt = parseFloat(this.cash)+parseFloat(this.bankCard) - this.total; 
-            return amt.toFixed(2)
+            return Math.round(amt)
+            // return amt.toFixed(2)
           }
           return 0;
       },
@@ -450,7 +452,7 @@ import * as JSPM from 'jsprintmanager';
               console.log(submitResponse);
             });
             
-            this.printInvoice(erpResult);
+            this.printInvoice(this.invoiceNo);
             //alert('Invoice saved and sent to ZATCA successfully!');
             this.ClearOrder()
             this.showPayment =false;
@@ -469,179 +471,178 @@ import * as JSPM from 'jsprintmanager';
      
 
 
-    //  async printInvoice(invoiceName) {
+    async printInvoice(invoiceName) {
       
 
-    //   window.JSPM.JSPrintManager.auto_reconnect = true;
-    //   window.JSPM.JSPrintManager.start();
-    //   window.JSPM.JSPrintManager.WS.onStatusChanged = async function () {
-    // if (window.JSPM.JSPrintManager.websocket_status === window.JSPM.WSStatus.Open) {
-    //     const token = localStorage.getItem('token'); // Retrieve token from localStorage
-    //     const printFormat = "POS Invoice"; // Replace with your print format or variable
+      JSPM.JSPrintManager.auto_reconnect = true;
+      JSPM.JSPrintManager.start();
+      JSPM.JSPrintManager.WS.onStatusChanged = async function () {
+    if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
+        const token = localStorage.getItem('token'); // Retrieve token from localStorage
+        const printFormat = "KSA POS Invoice"; // Replace with your print format or variable
         
-    //     const targetUrl = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
+       // const targetUrl = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
 
-    //     try {
-    //         // Fetch the image as a blob with authorization headers
-    //         const response = await fetch(targetUrl, {
-    //             headers: {
-    //                 Authorization: 'Basic ' + token,
-    //             },
-    //         });
+        const url = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&key=None&format=${printFormat}`;
 
-    //         if (!response.ok || !response.headers.get('content-type').includes('application/pdf')) {
-    //             throw new Error("Failed to fetch PDF file. Check the URL and authentication.");
-    //         }
-    //         const blob = await response.blob();
-    //         const objectURL = URL.createObjectURL(blob);
+        try {
+            // Fetch the image as a blob with authorization headers
+            const response = await fetch(url, {
+                method:'POST',
+                headers: {
+                    Authorization: 'Basic ' + token,
+                },
+            });
 
-    //         // Proceed with printing using JSPM
-    //         const cpj = new window.JSPM.ClientPrintJob();
-    //         cpj.clientPrinter = new window.JSPM.DefaultPrinter();
-
-    //         // Create PrintFile using the blob
-    //         const myFile = new window.JSPM.PrintFilePDF(objectURL, window.JSPM.FileSourceType.URL, 'SalesInvoice.pdf', 1);
-    //        //cpj.files.push(myFile);
-    //         myFile.printAsImage = true;  // Try printing as an image for better scaling
-    //         myFile.printAsGrayscale = false;  // Set to true if grayscale printing is preferred
-    //         cpj.files.push(myFile);
-
-    //         // Send the print job to the client
-    //         cpj.sendToClient();
-    //         cpj.onJobComplete = () => URL.revokeObjectURL(objectURL);
-    //     } catch (error) {
-    //         console.error("Failed to fetch or print the file:", error);
-    //     }
-    // }
-    // };
-
-    // },
-
-
-  async printInvoice(invoiceName) {
-  try {
-    const printFormat = 'KSA POS Invoice'; 
-    const targetUrl = `${this.baseURL}/printview?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}&no_letterhead=0`;
-
-        // Initialize Printer Commands
-        let commands = esc + "@"; // Reset Printer
-
-        // Add Company Name in English, Bold and Increased Size
-        commands += esc + "!" + '\x08'; // Set double-height text
-        commands += esc + "a" + '\x01'; // Center alignment
-        commands += esc + "E" + '\x01' + invoiceData.company.toUpperCase() + newLine; // Company Name in English
-        commands += esc + "E" + '\x01' + this.companyDet.company_name_in_arabic + newLine; // Company Name in English
-        commands += esc + "E" + '\x00'; // Cancel bold
-        commands += esc + "!" + '\x00'; // Reset to normal text
-        commands += newLine;
-
-    console.log(response);
-    
-
-    const pdfBlob = await response.blob();
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-        // Add Invoice Heading
-        commands += esc + "a" + '\x01'; // Center alignment
-        commands += esc + "E" + '\x01' + (invoiceData.printHeading || "INVOICE") + newLine;
-        commands += esc + "E" + '\x00'; // Cancel bold
-        commands += newLine; // Space after heading
-
-        // Invoice Details
-        commands += "Receipt No: " + invoiceData.name + newLine;
-        commands += "Cashier: " + invoiceData.owner + newLine;
-        commands += "Customer: " + invoiceData.customer_name + newLine;
-        commands += "Date: " + invoiceData.posting_date + " " + invoiceData.posting_time + newLine;
-        commands += newLine;
-
-        // Separator
-        commands += "--------------------------------" + newLine;
-
-        // Table Header
-        commands += "Item               Qty    Amt" + newLine;
-        commands += "--------------------------------" + newLine;
-
-        // Add Items with Aligned Columns
-        invoiceData.items.forEach(item => {
-
-          console.log(item);
-          
-            // English Item Name
-            let itemNameEnglish = item.item_name.substring(0, 15).padEnd(15); // English item name
-            let qty = item.qty.toString().padStart(4);
-            let amount = item.amount.toFixed(2).toString().padStart(8);
-            commands += `${itemNameEnglish} ${qty} ${amount}` + newLine;
-
-            // Arabic Item Name (aligned to the right)
-            let itemNameArabic = (item.item_name_arabic) ? item.item_name_arabic.substring(0, 15) :"";
-            // commands += esc + "a" + '\x02'; // Right align
-            commands += itemNameArabic + newLine; // Arabic item name
-            // commands += esc + "a" + '\x00'; // Reset alignment
-        });
-
-        // Separator
-        commands += "--------------------------------" + newLine;
-
-        // Center Align Total Section
-        commands += esc + "a" + '\x01'; // Center alignment
-        commands += "Total:              " + invoiceData.total.toFixed(2).padStart(10) + newLine;
-        if (invoiceData.discount_amount) {
-            commands += "Discount:           -" + invoiceData.discount_amount.toFixed(2).padStart(8) + newLine;
-        }
-        commands += "Grand Total:        " + invoiceData.grand_total.toFixed(2).padStart(10) + newLine;
-        if (invoiceData.rounded_total) {
-            commands += "Rounded Total:      " + invoiceData.rounded_total.toFixed(2).padStart(10) + newLine;
-        }
-
-        // Add VAT Details (if applicable)
-        if (invoiceData.total_taxes_and_charges) {
-            commands += "VAT Amount:         " + invoiceData.total_taxes_and_charges.toFixed(2).padStart(10) + newLine;
-        }
-
-        // commands += esc + "a" + '\x00'; // Reset alignment
-         commands += newLine; // Space after totals
-
-        // Payment Modes
-        invoiceData.payments.forEach(payment => {
-            commands += payment.mode_of_payment.padEnd(15) + ": " + payment.amount.toFixed(2).padStart(8) + newLine;
-        });
-
-        // Paid and Change Amount
-        commands += "Paid Amount:        " + invoiceData.paid_amount.toFixed(2).padStart(10) + newLine;
-        if (invoiceData.change_amount) {
-            commands += "Change Amount:      " + invoiceData.change_amount.toFixed(2).padStart(10) + newLine;
-        }
-
-        // Footer
-        commands += newLine + (invoiceData.terms || "") + newLine;
-        commands += esc + "a" + '\x01'; // Center alignment
-        commands += "Thank you, please visit again." + newLine;
-
-        // Add a few new lines for bottom padding
-        commands += newLine.repeat(5); // Adjust as needed for bottom padding
-
-        // Cut Paper (if printer supports it)
-        commands += esc + "m"; // Partial cut
-        commands += esc + "d" + '\x01'; // Feed a bit
-
-        // Send to Printer
-        JSPM.JSPrintManager.auto_reconnect = true;
-        JSPM.JSPrintManager.start();
-        JSPM.JSPrintManager.WS.onStatusChanged = function () {
-            if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
-                let cpj = new JSPM.ClientPrintJob();
-                cpj.clientPrinter = new JSPM.DefaultPrinter();
-                cpj.printerCommands = commands;
-                cpj.sendToClient();
-
-                window.location.reload()
+            if (!response.ok || !response.headers.get('content-type').includes('application/pdf')) {
+                throw new Error("Failed to fetch PDF file. Check the URL and authentication.");
             }
-        };
+            const blob = await response.blob();
+            const objectURL = URL.createObjectURL(blob);
 
-    } catch (error) {
-        console.error("Error printing invoice:", error);
+            // Proceed with printing using JSPM
+            const cpj = new JSPM.ClientPrintJob();
+            cpj.clientPrinter = new JSPM.DefaultPrinter();
+
+            // Create PrintFile using the blob
+            const myFile = new JSPM.PrintFilePDF(objectURL, JSPM.FileSourceType.URL, invoiceName+'_SalesInvoice.pdf', 1);
+           //cpj.files.push(myFile);
+            myFile.printAsImage = true;  // Try printing as an image for better scaling
+            myFile.printAsGrayscale = false;  // Set to true if grayscale printing is preferred
+            cpj.files.push(myFile);
+
+            // Send the print job to the client
+            cpj.sendToClient();
+            cpj.onJobComplete = () => URL.revokeObjectURL(objectURL);
+        } catch (error) {
+            console.error("Failed to fetch or print the file:", error);
+        }
     }
-}
+    };
+
+    },
+
+
+//     async printInvoice(invoiceData) {
+//     try {
+//         // ESC/POS Command Bytes
+//         let esc = '\x1B';
+//         let newLine = '\x0A';
+
+//         // Initialize Printer Commands
+//         let commands = esc + "@"; // Reset Printer
+
+//         // Add Company Name in English, Bold and Increased Size
+//         commands += esc + "!" + '\x08'; // Set double-height text
+//         commands += esc + "a" + '\x01'; // Center alignment
+//         commands += esc + "E" + '\x01' + invoiceData.company.toUpperCase() + newLine; // Company Name in English
+//         commands += esc + "E" + '\x00'; // Cancel bold
+//         commands += esc + "!" + '\x00'; // Reset to normal text
+//         commands += newLine;
+
+//         // Add VAT Number
+//         commands += esc + "a" + '\x01'; // Center alignment
+//         commands += "VAT No: " + this.companyDet.tax_id + newLine; // VAT Number
+//         commands += newLine; // Space after VAT
+
+//         // Add Invoice Heading
+//         commands += esc + "a" + '\x01'; // Center alignment
+//         commands += esc + "E" + '\x01' + (invoiceData.printHeading || "INVOICE") + newLine;
+//         commands += esc + "E" + '\x00'; // Cancel bold
+//         commands += newLine; // Space after heading
+
+//         // Invoice Details
+//         commands += "Receipt No: " + invoiceData.name + newLine;
+//         commands += "Cashier: " + invoiceData.owner + newLine;
+//         commands += "Customer: " + invoiceData.customer_name + newLine;
+//         commands += "Date: " + invoiceData.posting_date + " " + invoiceData.posting_time + newLine;
+//         commands += newLine;
+
+//         // Separator
+//         commands += "--------------------------------" + newLine;
+
+//         // Table Header
+//         commands += "Item               Qty    Amt" + newLine;
+//         commands += "--------------------------------" + newLine;
+
+//         // Add Items with Aligned Columns
+//         invoiceData.items.forEach(item => {
+//             // English Item Name
+//             let itemNameEnglish = item.item_name.substring(0, 15).padEnd(15); // English item name
+//             let qty = item.qty.toString().padStart(4);
+//             //let amount = item.amount.toFixed(2).toString().padStart(8);
+//             let amount = Math.round(item.amount).toString().padStart(8)
+//             commands += `${itemNameEnglish} ${qty} ${amount}` + newLine;
+
+//             // Arabic Item Name (aligned to the right)
+//             // let itemNameArabic = item.item_name_arabic.substring(0, 15);
+//             // commands += esc + "a" + '\x02'; // Right align
+//             // commands += itemNameArabic + newLine; // Arabic item name
+//             // commands += esc + "a" + '\x00'; // Reset alignment
+//         });
+
+//         // Separator
+//         commands += "--------------------------------" + newLine;
+
+//         // Center Align Total Section
+//         commands += esc + "a" + '\x01'; // Center alignment
+//         commands += "Total:              " + invoiceData.total.toFixed(2).padStart(10) + newLine;
+//         if (invoiceData.discount_amount) {
+//             commands += "Discount:           -" + invoiceData.discount_amount.toFixed(2).padStart(8) + newLine;
+//         }
+//         commands += "Grand Total:        " + invoiceData.grand_total.toFixed(2).padStart(10) + newLine;
+//         if (invoiceData.rounded_total) {
+//             commands += "Rounded Total:      " + invoiceData.rounded_total.toFixed(2).padStart(10) + newLine;
+//         }
+
+//         // Add VAT Details (if applicable)
+//         if (invoiceData.total_taxes_and_charges) {
+//             commands += "VAT Amount:         " + invoiceData.total_taxes_and_charges.toFixed(2).padStart(10) + "(15%)"+ newLine;
+//         }
+
+//         // commands += esc + "a" + '\x00'; // Reset alignment
+//         commands += newLine; // Space after totals
+
+//         // Payment Modes
+//         invoiceData.payments.forEach(payment => {
+//             commands += payment.mode_of_payment.padEnd(15) + ": " + payment.amount.toFixed(2).padStart(8) + newLine;
+//         });
+
+//         // Paid and Change Amount
+//         commands += "Paid Amount:        " + invoiceData.paid_amount.toFixed(2).padStart(10) + newLine;
+//         if (invoiceData.change_amount) {
+//             commands += "Change Amount:      " + invoiceData.change_amount.toFixed(2).padStart(10) + newLine;
+//         }
+
+//         // Footer
+//         commands += newLine + (invoiceData.terms || "") + newLine;
+//         commands += esc + "a" + '\x01'; // Center alignment
+//         commands += "Thank you, please visit again." + newLine;
+
+//         // Add a few new lines for bottom padding
+//         commands += newLine.repeat(5); // Adjust as needed for bottom padding
+
+//         // Cut Paper (if printer supports it)
+//         commands += esc + "m"; // Partial cut
+//         commands += esc + "d" + '\x01'; // Feed a bit
+
+//         // Send to Printer
+//         JSPM.JSPrintManager.auto_reconnect = true;
+//         JSPM.JSPrintManager.start();
+//         JSPM.JSPrintManager.WS.onStatusChanged = function () {
+//             if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
+//                 let cpj = new JSPM.ClientPrintJob();
+//                 cpj.clientPrinter = new JSPM.DefaultPrinter();
+//                 cpj.printerCommands = commands;
+//                 cpj.sendToClient();
+//                 window.location.reload()
+//             }
+//         };
+
+//     } catch (error) {
+//         console.error("Error printing invoice:", error);
+//     }
+// }
 
 
 
