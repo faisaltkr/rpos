@@ -20,8 +20,8 @@
             <span class="text-left col-span-3">{{ item.name }}</span>
             <span class="text-right">{{ item.price }}</span>
             <span class="bg-gray-600 m-1 text-right" @click="editQty(item)">{{ item.quantity }}</span>
-            <span class="text-right">{{ Math.round(item.vat) }}</span>
-            <span class="text-right">{{ Math.round(item.total) }}</span>
+            <span class="text-right">{{ item.vat }}</span>
+            <span class="text-right">{{ item.total }}</span>
             <span class="text-right"><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
           </div>
         </div>
@@ -31,15 +31,15 @@
         <div class="flex justify-between mb-2">
           <span>Subtotal:</span>
           
-          <span>{{ Math.round(subtotal) }}</span>
+          <span>{{ subtotal }}</span>
         </div>
         <div class="flex justify-between mb-2">
           <span>VAT:</span>
-          <span>{{  Math.round(vat) }}</span>
+          <span>{{  vat }}</span>
         </div>
         <div class="flex justify-between font-bold mb-4">
           <span>Total:</span>
-          <span>{{  Math.round(total) }}</span>
+          <span>{{  total }}</span>
           
         </div>
         <div class="flex justify-between ">
@@ -174,7 +174,9 @@ import moment from 'moment';
 
 import * as JSPM from 'jsprintmanager';
 
+import Decimal from 'decimal.js-light';
 
+import { sum } from '@/helper';
 
 // import PaymentModal from './PaymentModal.vue';
 
@@ -196,11 +198,11 @@ import * as JSPM from 'jsprintmanager';
             toBePaid: "",
             cash: 0,
             bankCard: 0,
-            netTotal: "",
+            netTotal: 0,
             taxAndCharges: this.vatTotal ? this.vatTotal : 0,
             totalAmount: '',
-            discountAmount: "",
-            grandTotal: '',
+            discountAmount: 0,
+            grandTotal: 0,
             roundedTotal: '',
             isCreditSale: false,
             useCustomerCredit: false,
@@ -244,14 +246,15 @@ import * as JSPM from 'jsprintmanager';
       
       
       subtotal() {
-        var t= this.cart.reduce((acc, item) => acc + (item.total ? parseFloat(item.total) : 0), 0);
-        return t-this.vat
+
+        return sum(this.cart.map((x) => x.total)).minus(this.vat)
       },
       vat() {
-        return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
+        return sum(this.cart.map((x) => x.vat))
+        //return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
-        return  Math.round(this.subtotal + this.vat - this.discountAmount);
+        return new Decimal(this.subtotal || 0).add( this.vat||0).minus(this.discountAmount).toString()
       },
       amountGiven(){
         let amount = parseFloat(this.cash)+parseFloat(this.bankCard);
@@ -478,8 +481,9 @@ import * as JSPM from 'jsprintmanager';
       JSPM.JSPrintManager.start();
       // JSPM.JSPrintManager.WS.onStatusChanged = async function () {
     if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
+      
         const token = localStorage.getItem('token'); // Retrieve token from localStorage
-        const printFormat = "KSA POS Invoice"; // Replace with your print format or variable
+        const printFormat = "POS POS Invoice"; // Replace with your print format or variable
         
        // const targetUrl = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
 
@@ -517,6 +521,8 @@ import * as JSPM from 'jsprintmanager';
         } catch (error) {
             console.error("Failed to fetch or print the file:", error);
         }
+    }else{
+      alert('Printer not configured')
     }
     // };
 

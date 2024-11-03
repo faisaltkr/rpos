@@ -15,7 +15,7 @@ export function sum(...args) {
 		const total = numbers.reduce((acc, current) => {
 			return acc.add(current);
 		}, new Decimal(0))
-		return total.toString();
+		return total;
 	}
-	return ''
+	return 0
 }
