@@ -157,7 +157,9 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
         })
       },
       searchByBarcode(barcode) {
-        const foundItem = this.items.find(item => item.item_code === barcode);
+        const foundItem = this.items.find(item => 
+          item.barcode_details.some(detail => detail.barcode === barcode)
+      );
         if (foundItem) {
           this.addToCart(foundItem);
         } else if (barcode === "") {
