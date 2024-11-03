@@ -48,6 +48,8 @@
           </button>
         </div>
 
+        
+
     
       </div>
 
@@ -127,29 +129,35 @@
 
     <div v-if="showEdit" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
       <div class="bg-gray-600 shadow-lg p-6 w-full max-w-xl">
-        <label class="block text-white">Update Quantity</label>
-        <div class="grid grid-cols-3 gap-4">
+        <label class="block text-white mb-2">Update Quantity</label>
+        <div class="grid grid-cols-3 gap-4 mb-2">
           <!-- Payment fields -->
           
           <div>
-            <button @click="decrement()" class="w-full bg-green-500 text-white p-4 text-4xl">-</button>
+            <button @click="decrement(cartUpdate.item_code)" class="w-full bg-green-500 text-white p-4 text-4xl">-</button>
           </div>
           <div>
-            <input type="text" class="text-center text-white  w-full p-4 text-4xl" v-model="cartUpdate.qty" />
+            <input type="text" class="text-center text-white  w-full p-4 text-4xl" disabled v-model="cartUpdate.qty" />
           </div>
           <div>
-           <button @click="increment()" class="w-full bg-green-500 text-white p-4 text-4xl">+</button>
+           <button @click="increment(cartUpdate.item_code)" class="w-full bg-green-500 text-white p-4 text-4xl">+</button>
           </div>
           
         </div>
+        <label for="">Update Unit Price</label>
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <input type="text" @keyup="changeItemPrice(cartUpdate.item_code)" class="text-center text-white  w-full p-4 text-4xl" v-model="cartUpdate.rate" />
+          </div>
+        </div>
           
-          <div class="grid grid-cols-2 gap-4 mt-3">
+          <div class="grid grid-cols-1 gap-4 mt-3">
           <div >
             <button @click="showEdit=false" class="w-full bg-red-500 text-white px-2 py-2">Close</button>
           </div>
-          <div>
+          <!-- <div>
             <button @click="updateItemQuantity(cartUpdate.item_code, cartUpdate.qty)" class="w-full bg-green-500 text-white px-2 py-2">OK</button>
-          </div>
+          </div> -->
         </div>
         
       </div>
@@ -163,6 +171,9 @@ import axios from 'axios';
 
 import moment from 'moment';
 
+import * as JSPM from 'jsprintmanager';
+
+
 
 // import PaymentModal from './PaymentModal.vue';
 
@@ -175,7 +186,7 @@ import moment from 'moment';
             balance_disabled:false,
             showPayment:false,
             qty:1,
-            baseURL:localStorage.getItem('baseURL') ?? "",
+            baseURL:localStorage.getItem('baseURL'),
             pos : JSON.parse(localStorage.getItem('pos')),
             invoiceNo: "",
             salesDate: moment(new Date()).format('DD-MM-YYYY'),
@@ -198,8 +209,10 @@ import moment from 'moment';
             settings: localStorage.getItem('settings') ? JSON.parse(localStorage.getItem('settings')) : "",
             cartUpdate:{
               qty:0,
-              item_code:0
-            }
+              item_code:0,
+              rate:0
+            },
+            companyDet:JSON.parse(localStorage.getItem('company'))
         }
     },
     props: {
@@ -226,6 +239,8 @@ import moment from 'moment';
     },
 
     computed: {
+
+      
       
       subtotal() {
         var t= this.cart.reduce((acc, item) => acc + (item.total ? parseFloat(item.total) : 0), 0);
@@ -267,41 +282,58 @@ import moment from 'moment';
       
     },
     methods: {
+    
 
-      increment() {
+      
+
+    increment(item_code) {
       this.cartUpdate.qty += 1;
+
+      this.updateItemQuantity(item_code,this.cartUpdate.qty)
     },
-    decrement() {
+    decrement(item_code) {
       if (this.cartUpdate.qty > 0) {
         this.cartUpdate.qty -= 1;
+
+        this.updateItemQuantity(item_code,this.cartUpdate.qty)
       }
     },
 
 
         editQty(item)
         {
-            console.log(item);
-            
             this.showEdit = true;
             this.cartUpdate.qty = item.quantity;
             this.cartUpdate.item_code = item.item_code;
+            this.cartUpdate.rate = item.price;
         },
         updateItemQuantity(itemCode, newQuantity) {
   // Find the item in the cart based on its item_code
           const item = this.cart.find(cartItem => cartItem.item_code === itemCode);
-
           // If the item exists, update its quantity and recalculate total and VAT
           if (item) {
             item.quantity = newQuantity;
+            item.price = this.cartUpdate.rate;
             const baseTotal = (item.price * item.quantity) || 0;
             const vatAmount = (baseTotal * item.vatRate) / 100 || 0;
             item.total = baseTotal + vatAmount;
             item.vat = vatAmount;
 
-            this.showEdit = false;
+            //this.showEdit = false;
           } else {
             console.warn('Item not found in cart');
           }
+        },
+
+        changeItemPrice(itemCode){
+           const item = this.cart.find(cartItem => cartItem.item_code === itemCode);
+           if(item){
+            item.price = this.cartUpdate.rate;
+            const baseTotal = (item.price * item.quantity) || 0;
+            const vatAmount = (baseTotal * item.vatRate) / 100 || 0;
+            item.total = baseTotal + vatAmount;
+            item.vat = vatAmount;
+           }
         },
 
         Cashfocus(input){
@@ -359,6 +391,7 @@ import moment from 'moment';
             }
 
             let items = this.cart.map(function(item){
+               
                   if(item.code!=""){
                     return {
                       item_code: item.item_code,
@@ -417,8 +450,8 @@ import moment from 'moment';
               console.log(submitResponse);
             });
             
-            this.printInvoice(this.invoiceNo);
-            alert('Invoice saved and sent to ZATCA successfully!');
+            this.printInvoice(erpResult);
+            //alert('Invoice saved and sent to ZATCA successfully!');
             this.ClearOrder()
             this.showPayment =false;
           });
@@ -433,128 +466,185 @@ import moment from 'moment';
         this.$emit('clear-cart'); // Emit an event to notify the parent component
      },
 
+     
 
-    // async fetchInvoicePrintFormat(invoiceName) {
-    //   try {
-    //     const response = await axios.get(
-    //       `${this.baseURL}/api/method/frappe.utils.print_format.download_pdf`,
-    //       {
-    //         params: {
-    //           doctype: "Sales Invoice",
-    //           name: invoiceName,
-    //           format: "Standard", // Replace with your custom print format name if needed
-    //           no_letterhead: 0
-    //         },
-    //         headers: {
-    //           Authorization: `Basic ${localStorage.getItem('token')}`
-    //         }
-    //       }
-    //     );
-    //     return response.data;
-    //   } catch (error) {
-    //     console.error("Error fetching the Sales Invoice print format:", error);
-    //     return null;
-    //   }
-    // },
 
-    // async printInvoice(invoiceName) {
-    //   try {
-    //     const printFormat = 'KSA POS Invoice'; 
-    //     let targetUrl = this.baseURL+`/printview?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}&no_letterhead=0`;
-        // var targetUrl = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
-        // const response = await fetch(targetUrl,{
-
-        //     headers: {
-        //       Authorization: 'Basic '+localStorage.getItem('token'),
-        //     }
-        //   }
-        // );
+    //  async printInvoice(invoiceName) {
       
-         // console.log(window.JSPM, invoiceId)
-        // if(window.JSPM) {
-        //   window.JSPM.JSPrintManager.auto_reconnect = true;
-        //   window.JSPM.JSPrintManager.start();
-        //   window.JSPM.JSPrintManager.WS.onStatusChanged = function () {
-        //       if (window.JSPM.JSPrintManager.websocket_status == window.JSPM.WSStatus.Open) {
-        //           var cpj = new window.JSPM.ClientPrintJob();
-        //           cpj.clientPrinter = new window.JSPM.DefaultPrinter();
-        //           var my_file1 = new window.JSPM.PrintFilePDF(response, window.JSPM.FileSourceType.URL, 'MyFile.pdf', 1);
-        //           cpj.files.push(my_file1);
-        //           cpj.sendToClient();
-        //       }
-        //   };
-        // }
-        // Send print job to the printer
 
-    //     console.log('Print job sent successfully!');
-    //   } catch (error) {
-    //     console.error('Error printing invoice:', error);
-    //   }
+    //   window.JSPM.JSPrintManager.auto_reconnect = true;
+    //   window.JSPM.JSPrintManager.start();
+    //   window.JSPM.JSPrintManager.WS.onStatusChanged = async function () {
+    // if (window.JSPM.JSPrintManager.websocket_status === window.JSPM.WSStatus.Open) {
+    //     const token = localStorage.getItem('token'); // Retrieve token from localStorage
+    //     const printFormat = "POS Invoice"; // Replace with your print format or variable
+        
+    //     const targetUrl = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
+
+    //     try {
+    //         // Fetch the image as a blob with authorization headers
+    //         const response = await fetch(targetUrl, {
+    //             headers: {
+    //                 Authorization: 'Basic ' + token,
+    //             },
+    //         });
+
+    //         if (!response.ok || !response.headers.get('content-type').includes('application/pdf')) {
+    //             throw new Error("Failed to fetch PDF file. Check the URL and authentication.");
+    //         }
+    //         const blob = await response.blob();
+    //         const objectURL = URL.createObjectURL(blob);
+
+    //         // Proceed with printing using JSPM
+    //         const cpj = new window.JSPM.ClientPrintJob();
+    //         cpj.clientPrinter = new window.JSPM.DefaultPrinter();
+
+    //         // Create PrintFile using the blob
+    //         const myFile = new window.JSPM.PrintFilePDF(objectURL, window.JSPM.FileSourceType.URL, 'SalesInvoice.pdf', 1);
+    //        //cpj.files.push(myFile);
+    //         myFile.printAsImage = true;  // Try printing as an image for better scaling
+    //         myFile.printAsGrayscale = false;  // Set to true if grayscale printing is preferred
+    //         cpj.files.push(myFile);
+
+    //         // Send the print job to the client
+    //         cpj.sendToClient();
+    //         cpj.onJobComplete = () => URL.revokeObjectURL(objectURL);
+    //     } catch (error) {
+    //         console.error("Failed to fetch or print the file:", error);
+    //     }
+    // }
+    // };
+
     // },
 
 
-    async printInvoice(invoiceName) {
-  try {
-    const printFormat = 'KSA POS Invoice'; 
-    const targetUrl = `${this.baseURL}/printview?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}&no_letterhead=0`;
+    async printInvoice(invoiceData) {
+    try {
+        // ESC/POS Command Bytes
+        let esc = '\x1B';
+        let newLine = '\x0A';
 
-    // Fetch the PDF file from ERPNext
-    const response = await fetch(targetUrl, {
-      headers: {
-        Authorization: 'Basic ' + localStorage.getItem('token'),
-      },
-    });
+        // Initialize Printer Commands
+        let commands = esc + "@"; // Reset Printer
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch PDF: ${response.statusText}`);
-    }
+        // Add Company Name in English, Bold and Increased Size
+        commands += esc + "!" + '\x08'; // Set double-height text
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += esc + "E" + '\x01' + invoiceData.company.toUpperCase() + newLine; // Company Name in English
+        commands += esc + "E" + '\x01' + this.companyDet.company_name_in_arabic + newLine; // Company Name in English
+        commands += esc + "E" + '\x00'; // Cancel bold
+        commands += esc + "!" + '\x00'; // Reset to normal text
+        commands += newLine;
 
-    const pdfBlob = await response.blob();
-    const pdfUrl = URL.createObjectURL(pdfBlob);
+        // Add VAT Number
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += "VAT No: " + this.companyDet.tax_id + newLine; // VAT Number
+        commands += newLine; // Space after VAT
 
-    if (window.JSPM) {
-      window.JSPM.JSPrintManager.auto_reconnect = true;
-      await window.JSPM.JSPrintManager.start();
+        // Add Invoice Heading
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += esc + "E" + '\x01' + (invoiceData.printHeading || "INVOICE") + newLine;
+        commands += esc + "E" + '\x00'; // Cancel bold
+        commands += newLine; // Space after heading
 
-      window.JSPM.JSPrintManager.WS.onStatusChanged = () => {
-        if (window.JSPM.JSPrintManager.websocket_status === window.JSPM.WSStatus.Open) {
-          const cpj = new window.JSPM.ClientPrintJob();
-          cpj.clientPrinter = new window.JSPM.DefaultPrinter();
+        // Invoice Details
+        commands += "Receipt No: " + invoiceData.name + newLine;
+        commands += "Cashier: " + invoiceData.owner + newLine;
+        commands += "Customer: " + invoiceData.customer_name + newLine;
+        commands += "Date: " + invoiceData.posting_date + " " + invoiceData.posting_time + newLine;
+        commands += newLine;
 
-          // Use the PDF blob URL and ensure the print command is using it as a file URL
-          const myFile = new window.JSPM.PrintFilePDF(
-            pdfUrl,
-            window.JSPM.FileSourceType.URL,
-            'Sales_Invoice.pdf',
-            1
-          );
+        // Separator
+        commands += "--------------------------------" + newLine;
 
-          cpj.files.push(myFile);
-          cpj.sendToClient();
+        // Table Header
+        commands += "Item               Qty    Amt" + newLine;
+        commands += "--------------------------------" + newLine;
+
+        // Add Items with Aligned Columns
+        invoiceData.items.forEach(item => {
+
+          console.log(item);
+          
+            // English Item Name
+            let itemNameEnglish = item.item_name.substring(0, 15).padEnd(15); // English item name
+            let qty = item.qty.toString().padStart(4);
+            let amount = item.amount.toFixed(2).toString().padStart(8);
+            commands += `${itemNameEnglish} ${qty} ${amount}` + newLine;
+
+            // Arabic Item Name (aligned to the right)
+            let itemNameArabic = (item.item_name_arabic) ? item.item_name_arabic.substring(0, 15) :"";
+            // commands += esc + "a" + '\x02'; // Right align
+            commands += itemNameArabic + newLine; // Arabic item name
+            // commands += esc + "a" + '\x00'; // Reset alignment
+        });
+
+        // Separator
+        commands += "--------------------------------" + newLine;
+
+        // Center Align Total Section
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += "Total:              " + invoiceData.total.toFixed(2).padStart(10) + newLine;
+        if (invoiceData.discount_amount) {
+            commands += "Discount:           -" + invoiceData.discount_amount.toFixed(2).padStart(8) + newLine;
         }
-      };
-    } else {
-      console.error('JSPrintManager is not available in this environment.');
+        commands += "Grand Total:        " + invoiceData.grand_total.toFixed(2).padStart(10) + newLine;
+        if (invoiceData.rounded_total) {
+            commands += "Rounded Total:      " + invoiceData.rounded_total.toFixed(2).padStart(10) + newLine;
+        }
+
+        // Add VAT Details (if applicable)
+        if (invoiceData.total_taxes_and_charges) {
+            commands += "VAT Amount:         " + invoiceData.total_taxes_and_charges.toFixed(2).padStart(10) + newLine;
+        }
+
+        // commands += esc + "a" + '\x00'; // Reset alignment
+         commands += newLine; // Space after totals
+
+        // Payment Modes
+        invoiceData.payments.forEach(payment => {
+            commands += payment.mode_of_payment.padEnd(15) + ": " + payment.amount.toFixed(2).padStart(8) + newLine;
+        });
+
+        // Paid and Change Amount
+        commands += "Paid Amount:        " + invoiceData.paid_amount.toFixed(2).padStart(10) + newLine;
+        if (invoiceData.change_amount) {
+            commands += "Change Amount:      " + invoiceData.change_amount.toFixed(2).padStart(10) + newLine;
+        }
+
+        // Footer
+        commands += newLine + (invoiceData.terms || "") + newLine;
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += "Thank you, please visit again." + newLine;
+
+        // Add a few new lines for bottom padding
+        commands += newLine.repeat(5); // Adjust as needed for bottom padding
+
+        // Cut Paper (if printer supports it)
+        commands += esc + "m"; // Partial cut
+        commands += esc + "d" + '\x01'; // Feed a bit
+
+        // Send to Printer
+        JSPM.JSPrintManager.auto_reconnect = true;
+        JSPM.JSPrintManager.start();
+        JSPM.JSPrintManager.WS.onStatusChanged = function () {
+            if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
+                let cpj = new JSPM.ClientPrintJob();
+                cpj.clientPrinter = new JSPM.DefaultPrinter();
+                cpj.printerCommands = commands;
+                cpj.sendToClient();
+
+                window.location.reload()
+            }
+        };
+
+    } catch (error) {
+        console.error("Error printing invoice:", error);
     }
+}
 
-    console.log('Print job sent successfully!');
-  } catch (error) {
-    console.error('Error printing invoice:', error);
-  }
-},
 
-    
 
-    arrayBufferToBase64(buffer) {
-      let binary = '';
-      const bytes = new Uint8Array(buffer);
-      const len = bytes.byteLength;
-      for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      // Encode the binary string as Base64
-      return window.btoa(binary);
-    }
 
     },
     

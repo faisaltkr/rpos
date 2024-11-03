@@ -20,6 +20,7 @@
     "express": "^4.21.0",
     "font-awesome": "^4.7.0",
     "fs": "^0.0.1-security",
+    "jsprintmanager": "^7.0.2",
     "moment": "^2.30.1",
     "vue": "^3.2.13",
     "vue-currency-symbol": "^1.0.2",

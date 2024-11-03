@@ -550,6 +550,7 @@ export default {
       if(window.JSPM) {
         window.JSPM.JSPrintManager.auto_reconnect = true;
         window.JSPM.JSPrintManager.start();
+        
         window.JSPM.JSPrintManager.WS.onStatusChanged = function () {
             if (window.JSPM.JSPrintManager.websocket_status == window.JSPM.WSStatus.Open) {
                 var cpj = new window.JSPM.ClientPrintJob();
@@ -573,7 +574,7 @@ export default {
       window.location.reload();
     },
     print(){
-      this.printInvoice()
+      this.printInvoice('Test')
     },
     reload() {
       window.location.reload();

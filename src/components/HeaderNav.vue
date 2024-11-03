@@ -9,12 +9,12 @@
             </li>
             <li>
               <router-link active-class="active-link" to="/dashboard">
-                <b-icon icon="camera" font-scale="7.5"></b-icon>
+                
                 Dashboard
               </router-link>
             </li>
             <li>
-              <b-icon icon="camera" font-scale="7.5"></b-icon>
+              
               <router-link active-class="active-link" to="/sales">Sales</router-link>
             </li>
             <li><router-link active-class="active-link" to="/customer">Customer</router-link></li>

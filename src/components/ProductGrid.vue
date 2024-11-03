@@ -29,7 +29,7 @@
           </div>
       <div v-for="item in items" :key="item.item_code" class="grid grid-cols-6 p-4 border-b cursor-pointer" @click="$emit('add-to-cart', item)">
         <span>{{ item.item_code }}</span>
-        <span class="col-span-2">{{ item.item_name }}</span>
+        <span class="col-span-2">{{ item.item_name }} <br> {{ item.item_name_arabic }}</span>
         <span class="col">{{ item.price }}</span>
         <span class="col">{{ item.stock_uom }}</span>
         <span class="col">{{ (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate+"%" : 0+"%" }}</span>
@@ -53,7 +53,10 @@ export default {
   },
 
   props: {
-    searchItems:Array,
+    searchItems: {
+      type: Function,
+      required: true
+    },
     items: Array,
     viewMode: String
   }
