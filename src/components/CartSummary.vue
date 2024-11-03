@@ -518,11 +518,10 @@ import * as JSPM from 'jsprintmanager';
     // },
 
 
-    async printInvoice(invoiceData) {
-    try {
-        // ESC/POS Command Bytes
-        let esc = '\x1B';
-        let newLine = '\x0A';
+  async printInvoice(invoiceName) {
+  try {
+    const printFormat = 'KSA POS Invoice'; 
+    const targetUrl = `${this.baseURL}/printview?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}&no_letterhead=0`;
 
         // Initialize Printer Commands
         let commands = esc + "@"; // Reset Printer
@@ -536,10 +535,11 @@ import * as JSPM from 'jsprintmanager';
         commands += esc + "!" + '\x00'; // Reset to normal text
         commands += newLine;
 
-        // Add VAT Number
-        commands += esc + "a" + '\x01'; // Center alignment
-        commands += "VAT No: " + this.companyDet.tax_id + newLine; // VAT Number
-        commands += newLine; // Space after VAT
+    console.log(response);
+    
+
+    const pdfBlob = await response.blob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
 
         // Add Invoice Heading
         commands += esc + "a" + '\x01'; // Center alignment
