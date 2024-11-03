@@ -476,7 +476,7 @@ import * as JSPM from 'jsprintmanager';
 
       JSPM.JSPrintManager.auto_reconnect = true;
       JSPM.JSPrintManager.start();
-      JSPM.JSPrintManager.WS.onStatusChanged = async function () {
+      // JSPM.JSPrintManager.WS.onStatusChanged = async function () {
     if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
         const token = localStorage.getItem('token'); // Retrieve token from localStorage
         const printFormat = "KSA POS Invoice"; // Replace with your print format or variable
@@ -518,7 +518,7 @@ import * as JSPM from 'jsprintmanager';
             console.error("Failed to fetch or print the file:", error);
         }
     }
-    };
+    // };
 
     },
 
