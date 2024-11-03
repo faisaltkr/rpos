@@ -1,4 +1,3 @@
-/* eslint-disable */
 <template>
     <div class="flex flex-col h-full">
       <div class="flex-1 overflow-y-auto">
@@ -517,134 +516,132 @@ import * as JSPM from 'jsprintmanager';
     // };
 
     // },
-    async printInvoice () {
-      console.log(JSPM);
-    }
 
-//   async printInvoice(invoiceName) {
-//   try {
-//     const printFormat = 'KSA POS Invoice'; 
-//     const targetUrl = `${this.baseURL}/printview?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}&no_letterhead=0`;
 
-//         // Initialize Printer Commands
-//         let commands = esc + "@"; // Reset Printer
+  async printInvoice(invoiceName) {
+  try {
+    const printFormat = 'KSA POS Invoice'; 
+    const targetUrl = `${this.baseURL}/printview?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}&no_letterhead=0`;
 
-//         // Add Company Name in English, Bold and Increased Size
-//         commands += esc + "!" + '\x08'; // Set double-height text
-//         commands += esc + "a" + '\x01'; // Center alignment
-//         commands += esc + "E" + '\x01' + invoiceData.company.toUpperCase() + newLine; // Company Name in English
-//         commands += esc + "E" + '\x01' + this.companyDet.company_name_in_arabic + newLine; // Company Name in English
-//         commands += esc + "E" + '\x00'; // Cancel bold
-//         commands += esc + "!" + '\x00'; // Reset to normal text
-//         commands += newLine;
+        // Initialize Printer Commands
+        let commands = esc + "@"; // Reset Printer
 
-//     console.log(response);
+        // Add Company Name in English, Bold and Increased Size
+        commands += esc + "!" + '\x08'; // Set double-height text
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += esc + "E" + '\x01' + invoiceData.company.toUpperCase() + newLine; // Company Name in English
+        commands += esc + "E" + '\x01' + this.companyDet.company_name_in_arabic + newLine; // Company Name in English
+        commands += esc + "E" + '\x00'; // Cancel bold
+        commands += esc + "!" + '\x00'; // Reset to normal text
+        commands += newLine;
+
+    console.log(response);
     
 
-//     const pdfBlob = await response.blob();
-//     const pdfUrl = URL.createObjectURL(pdfBlob);
+    const pdfBlob = await response.blob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
 
-//         // Add Invoice Heading
-//         commands += esc + "a" + '\x01'; // Center alignment
-//         commands += esc + "E" + '\x01' + (invoiceData.printHeading || "INVOICE") + newLine;
-//         commands += esc + "E" + '\x00'; // Cancel bold
-//         commands += newLine; // Space after heading
+        // Add Invoice Heading
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += esc + "E" + '\x01' + (invoiceData.printHeading || "INVOICE") + newLine;
+        commands += esc + "E" + '\x00'; // Cancel bold
+        commands += newLine; // Space after heading
 
-//         // Invoice Details
-//         commands += "Receipt No: " + invoiceData.name + newLine;
-//         commands += "Cashier: " + invoiceData.owner + newLine;
-//         commands += "Customer: " + invoiceData.customer_name + newLine;
-//         commands += "Date: " + invoiceData.posting_date + " " + invoiceData.posting_time + newLine;
-//         commands += newLine;
+        // Invoice Details
+        commands += "Receipt No: " + invoiceData.name + newLine;
+        commands += "Cashier: " + invoiceData.owner + newLine;
+        commands += "Customer: " + invoiceData.customer_name + newLine;
+        commands += "Date: " + invoiceData.posting_date + " " + invoiceData.posting_time + newLine;
+        commands += newLine;
 
-//         // Separator
-//         commands += "--------------------------------" + newLine;
+        // Separator
+        commands += "--------------------------------" + newLine;
 
-//         // Table Header
-//         commands += "Item               Qty    Amt" + newLine;
-//         commands += "--------------------------------" + newLine;
+        // Table Header
+        commands += "Item               Qty    Amt" + newLine;
+        commands += "--------------------------------" + newLine;
 
-//         // Add Items with Aligned Columns
-//         invoiceData.items.forEach(item => {
+        // Add Items with Aligned Columns
+        invoiceData.items.forEach(item => {
 
-//           console.log(item);
+          console.log(item);
           
-//             // English Item Name
-//             let itemNameEnglish = item.item_name.substring(0, 15).padEnd(15); // English item name
-//             let qty = item.qty.toString().padStart(4);
-//             let amount = item.amount.toFixed(2).toString().padStart(8);
-//             commands += `${itemNameEnglish} ${qty} ${amount}` + newLine;
+            // English Item Name
+            let itemNameEnglish = item.item_name.substring(0, 15).padEnd(15); // English item name
+            let qty = item.qty.toString().padStart(4);
+            let amount = item.amount.toFixed(2).toString().padStart(8);
+            commands += `${itemNameEnglish} ${qty} ${amount}` + newLine;
 
-//             // Arabic Item Name (aligned to the right)
-//             let itemNameArabic = (item.item_name_arabic) ? item.item_name_arabic.substring(0, 15) :"";
-//             // commands += esc + "a" + '\x02'; // Right align
-//             commands += itemNameArabic + newLine; // Arabic item name
-//             // commands += esc + "a" + '\x00'; // Reset alignment
-//         });
+            // Arabic Item Name (aligned to the right)
+            let itemNameArabic = (item.item_name_arabic) ? item.item_name_arabic.substring(0, 15) :"";
+            // commands += esc + "a" + '\x02'; // Right align
+            commands += itemNameArabic + newLine; // Arabic item name
+            // commands += esc + "a" + '\x00'; // Reset alignment
+        });
 
-//         // Separator
-//         commands += "--------------------------------" + newLine;
+        // Separator
+        commands += "--------------------------------" + newLine;
 
-//         // Center Align Total Section
-//         commands += esc + "a" + '\x01'; // Center alignment
-//         commands += "Total:              " + invoiceData.total.toFixed(2).padStart(10) + newLine;
-//         if (invoiceData.discount_amount) {
-//             commands += "Discount:           -" + invoiceData.discount_amount.toFixed(2).padStart(8) + newLine;
-//         }
-//         commands += "Grand Total:        " + invoiceData.grand_total.toFixed(2).padStart(10) + newLine;
-//         if (invoiceData.rounded_total) {
-//             commands += "Rounded Total:      " + invoiceData.rounded_total.toFixed(2).padStart(10) + newLine;
-//         }
+        // Center Align Total Section
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += "Total:              " + invoiceData.total.toFixed(2).padStart(10) + newLine;
+        if (invoiceData.discount_amount) {
+            commands += "Discount:           -" + invoiceData.discount_amount.toFixed(2).padStart(8) + newLine;
+        }
+        commands += "Grand Total:        " + invoiceData.grand_total.toFixed(2).padStart(10) + newLine;
+        if (invoiceData.rounded_total) {
+            commands += "Rounded Total:      " + invoiceData.rounded_total.toFixed(2).padStart(10) + newLine;
+        }
 
-//         // Add VAT Details (if applicable)
-//         if (invoiceData.total_taxes_and_charges) {
-//             commands += "VAT Amount:         " + invoiceData.total_taxes_and_charges.toFixed(2).padStart(10) + newLine;
-//         }
+        // Add VAT Details (if applicable)
+        if (invoiceData.total_taxes_and_charges) {
+            commands += "VAT Amount:         " + invoiceData.total_taxes_and_charges.toFixed(2).padStart(10) + newLine;
+        }
 
-//         // commands += esc + "a" + '\x00'; // Reset alignment
-//          commands += newLine; // Space after totals
+        // commands += esc + "a" + '\x00'; // Reset alignment
+         commands += newLine; // Space after totals
 
-//         // Payment Modes
-//         invoiceData.payments.forEach(payment => {
-//             commands += payment.mode_of_payment.padEnd(15) + ": " + payment.amount.toFixed(2).padStart(8) + newLine;
-//         });
+        // Payment Modes
+        invoiceData.payments.forEach(payment => {
+            commands += payment.mode_of_payment.padEnd(15) + ": " + payment.amount.toFixed(2).padStart(8) + newLine;
+        });
 
-//         // Paid and Change Amount
-//         commands += "Paid Amount:        " + invoiceData.paid_amount.toFixed(2).padStart(10) + newLine;
-//         if (invoiceData.change_amount) {
-//             commands += "Change Amount:      " + invoiceData.change_amount.toFixed(2).padStart(10) + newLine;
-//         }
+        // Paid and Change Amount
+        commands += "Paid Amount:        " + invoiceData.paid_amount.toFixed(2).padStart(10) + newLine;
+        if (invoiceData.change_amount) {
+            commands += "Change Amount:      " + invoiceData.change_amount.toFixed(2).padStart(10) + newLine;
+        }
 
-//         // Footer
-//         commands += newLine + (invoiceData.terms || "") + newLine;
-//         commands += esc + "a" + '\x01'; // Center alignment
-//         commands += "Thank you, please visit again." + newLine;
+        // Footer
+        commands += newLine + (invoiceData.terms || "") + newLine;
+        commands += esc + "a" + '\x01'; // Center alignment
+        commands += "Thank you, please visit again." + newLine;
 
-//         // Add a few new lines for bottom padding
-//         commands += newLine.repeat(5); // Adjust as needed for bottom padding
+        // Add a few new lines for bottom padding
+        commands += newLine.repeat(5); // Adjust as needed for bottom padding
 
-//         // Cut Paper (if printer supports it)
-//         commands += esc + "m"; // Partial cut
-//         commands += esc + "d" + '\x01'; // Feed a bit
+        // Cut Paper (if printer supports it)
+        commands += esc + "m"; // Partial cut
+        commands += esc + "d" + '\x01'; // Feed a bit
 
-//         // Send to Printer
-//         JSPM.JSPrintManager.auto_reconnect = true;
-//         JSPM.JSPrintManager.start();
-//         JSPM.JSPrintManager.WS.onStatusChanged = function () {
-//             if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
-//                 let cpj = new JSPM.ClientPrintJob();
-//                 cpj.clientPrinter = new JSPM.DefaultPrinter();
-//                 cpj.printerCommands = commands;
-//                 cpj.sendToClient();
+        // Send to Printer
+        JSPM.JSPrintManager.auto_reconnect = true;
+        JSPM.JSPrintManager.start();
+        JSPM.JSPrintManager.WS.onStatusChanged = function () {
+            if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
+                let cpj = new JSPM.ClientPrintJob();
+                cpj.clientPrinter = new JSPM.DefaultPrinter();
+                cpj.printerCommands = commands;
+                cpj.sendToClient();
 
-//                 window.location.reload()
-//             }
-//         };
+                window.location.reload()
+            }
+        };
 
-//     } catch (error) {
-//         console.error("Error printing invoice:", error);
-//     }
-// }
+    } catch (error) {
+        console.error("Error printing invoice:", error);
+    }
+}
 
 
 
