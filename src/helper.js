@@ -28,7 +28,7 @@ export function calculateTotal(items) {
 	items.forEach(item => {
 			const vatRate = item.taxes[0].tax_rate; // No division by 100
 			const priceCents = Math.round(item.price * 100); // Convert price to cents
-			const vatAmountCents = Math.round((priceCents * vatRate * quantity) / 100);
+			const vatAmountCents = Math.round((priceCents * vatRate * item.quantity) / 100);
 			
 			totalWithoutVatCents += priceCents * item.quantity;
 			totalVatCents += vatAmountCents;
