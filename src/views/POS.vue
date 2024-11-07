@@ -14,7 +14,7 @@
       
       <div class="flex-1 flex overflow-hidden loading">
         <!-- Left Sidebar for Products -->
-        <div class="w-2/4 p-4 bg-gray-700 overflow-y-auto">
+        <div class="w-2/4 p-4 bg-gray-700 overflow-y-auto pb-[50px]">
           <ProductGrid :searchItems="searchItems" :items="filteredItems" :viewMode="viewMode"  @add-to-cart="addToCart" />
         </div>
   
@@ -199,6 +199,7 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
           name: item.item_name,
           quantity: 1,
           price: item.price,
+          item_name_arabic: item.item_name_arabic,
           total: item.price, // Initialize total for new item
           vatRate: (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate : 0
         });

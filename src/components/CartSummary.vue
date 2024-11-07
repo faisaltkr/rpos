@@ -14,12 +14,12 @@
             <span class="text-right">Total</span>
             <span class="text-right">Del</span>
           </div>
-          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 p-2 border-b" >
+          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 p-1 border-b items-center" >
             <span class="text-left">{{ index+1 }}</span>
            
-            <span class="text-left col-span-3">{{ item.name }}</span>
+            <span class="text-left col-span-3">{{ item.name }} <br> {{ item.item_name_arabic }}</span>
             <span class="text-right">{{ item.price }}</span>
-            <span class="bg-gray-600 m-1 text-right" @click="editQty(item)">{{ item.quantity }}</span>
+            <span class="bg-gray-600 text-center ml-2" @click="editQty(item)">{{ item.quantity }}</span>
             <span class="text-right">{{ item.vat }}</span>
             <span class="text-right">{{ item.total }}</span>
             <span class="text-right"><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
@@ -27,7 +27,7 @@
         </div>
       </div>
   
-      <div class="bg-gray-800 p-4 mt-4 rounded-lg">
+      <div class="bg-gray-800 p-2 mt-2 rounded-lg">
         <div class="flex justify-between mb-2">
           <span>Subtotal:</span>
           
@@ -43,7 +43,7 @@
           
         </div>
         <div class="flex justify-between ">
-          <button v-if="cart.length > 0" ref="PaymentBtn" class="p-2 my-2 w-full bg-green-600 text-white text-xl" @click="payNow">
+          <button v-if="cart.length > 0" ref="PaymentBtn" class="p-1 my-2 w-full bg-green-600 text-white text-xl" @click="payNow">
              Pay Now
           </button>
         </div>
