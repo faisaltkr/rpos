@@ -27,7 +27,7 @@
             <span class="text-right">E-rate</span>
       
           </div>
-      <div v-for="item in items" :key="item.item_code" class="grid grid-cols-6 p-4 border-b cursor-pointer" @click="$emit('add-to-cart', item)">
+      <div v-for="item in items" :key="item.item_code" class="grid grid-cols-6 px-4 py-2 border-b cursor-pointer" @click="$emit('add-to-cart', item)">
         <span>{{ item.item_code }}</span>
         <span class="col-span-2">{{ item.item_name }} <br> {{ item.item_name_arabic }}</span>
         <span class="col">{{ item.price.toFixed(2) }}</span>
