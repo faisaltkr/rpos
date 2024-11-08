@@ -14,13 +14,13 @@
       
       <div class="flex-1 flex overflow-hidden loading">
         <!-- Left Sidebar for Products -->
-        <div class="w-2/4 p-4 bg-gray-700 overflow-y-auto pb-[50px]">
+        <div class="w-2/4 p-2 bg-gray-700 overflow-y-auto pb-[50px]">
           <ProductGrid :searchItems="searchItems" :items="filteredItems" :viewMode="viewMode"  @add-to-cart="addToCart" />
         </div>
   
         <!-- Right Sidebar for Cart Summary -->
          
-        <div class="w-2/4 bg-gray-900 p-4 border-l">
+        <div class="w-2/4 bg-gray-900 p-2 border-l">
          
           <CartSummary ref="cartSummaryComponent"  @clear-cart="ClearOrder"  @remove-item="removeItemFromCart" :cart="cart" :vat-rate="vatRate" />
           

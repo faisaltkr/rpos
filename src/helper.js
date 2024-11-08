@@ -20,16 +20,55 @@ export function sum(...args) {
 	return 0
 }
 
-export function getItemTax(item) {
-	let totalVatCents = 0;
-	const vatRate = item.taxes[0].tax_rate; // No division by 100
-	const priceCents = Math.round(item.price * 100); // Convert price to cents
-	const vatAmountCents = Math.round((priceCents * vatRate * item.quantity) / 100);
 
-	totalVatCents += vatAmountCents;
+export function getItemPrice(item) {
+	const priceCents = Math.round(item.price * 100); // Convert price to cents
+	return (priceCents / 100).toFixed(2);
+}
+
+export function getItemTax(item) {
+	console.log({item})
+	const vatRate = item.vatRate; // No division by 100
+	const priceCents = item.price * 100; // Convert price to cents
+	const vatAmountCents = (priceCents * vatRate * item.quantity) / 100;
+
+	const totalVatCents = vatAmountCents;
+	console.log({totalVatCents})
 
 	return (totalVatCents / 100).toFixed(2);
 }
+
+export function getItemVatAndTotal(item) {
+  const itemTotal = item.price * item.quantity;  
+
+  const taxRate = item.vatRate / 100;
+  const tax = itemTotal * taxRate;  
+
+  const totalWithTax = itemTotal + tax;
+
+  const roundedItemTotal = Math.round(itemTotal * 100) / 100;  
+  const roundedTax = Math.round(tax * 100) / 100;  
+  const finalTotalWithTax = Math.round(totalWithTax * 100) / 100; 
+
+  return {
+    total: roundedItemTotal.toFixed(2),     
+    tax: roundedTax.toFixed(2),              
+    totalWithTax: finalTotalWithTax.toFixed(2)
+  };
+}
+
+
+
+// export function getItemTotal(item) {
+// 	console.log({item})
+// 	const priceCents = Math.round(item.price * 100); // Convert price to cents
+// 	const vatAmountCents = Math.round((priceCents * vatRate * item.quantity) / 100);
+
+// 	const totalVatCents = vatAmountCents;
+// 	console.log({totalVatCents})
+
+// 	return (totalVatCents / 100).toFixed(2);
+// }
 
 
 export function calculateTotal(items) {

@@ -1,5 +1,5 @@
 <template>
-    <div class="mb-4">
+    <div class="">
       <div class="relative">
         
         <input
@@ -8,6 +8,7 @@
           @input="filterCustomers"
           placeholder="Search for a customer..."
           class="w-full p-2  text-white bg-gray-900" 
+          id="search-list-of-customers-search"
         />
         <button
           v-if="selectedCustomer"
@@ -16,7 +17,7 @@
         >✖
         </button>
       </div>
-      <ul v-if="filteredCustomers.length > 0" class="absolute border bg-gray-800 rounded-md mt-2 max-h-48 overflow-y-auto w-100">
+      <ul v-if="filteredCustomers.length > 0 && showList" class="absolute border bg-gray-800 rounded-md mt-2 max-h-48 overflow-y-auto w-100">
         <li
           v-for="customer in filteredCustomers"
           :key="customer.id"
@@ -36,18 +37,31 @@
         searchQuery: 'CASH',
         customers: [],
         filteredCustomers: [],
-        selectedCustomer: 'CASH'
+        selectedCustomer: 'CASH',
+        showList: true
       };
     },
     created() {
       this.fetchCustomersFromLocalStorage();
     },
+    mounted() {
+      document.body.addEventListener('click', this.handleOutsideClick);
+    },
+    unmounted() {
+      document.body.removeEventListener('click', this.handleOutsideClick);
+    },
     methods: {
+      handleOutsideClick(e) {
+        if(!Array.from(e.target.classList).includes("search-list-of-customers-search")) {
+          this.showList = false
+        }
+      },
       fetchCustomersFromLocalStorage() {
         const customersData = localStorage.getItem('customers');
         this.customers = customersData ? JSON.parse(customersData) : [];
       },
       filterCustomers() {
+        this.showList = true
         this.filteredCustomers = this.customers.filter(customer =>
           customer.customer_name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
