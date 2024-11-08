@@ -5,16 +5,16 @@
           No items
         </div>
         <div v-else>
-          <div class="grid grid-cols-9 p-2 border-b tex-lg text-sm font-bold-lg">
-            <span class="text-left" >S.No</span>
-            <span class="text-left col-span-3">Item Name</span>
+          <div class="font-bold grid grid-cols-9 px-2 pb-2 border-b tex-lg text-sm font-bold-lg">
+            <span class="text-left" >#</span>
+            <span class="text-left col-span-3">Item</span>
             <span class="text-right">Rate</span>
-            <span class="text-right">QTY</span>
-            <span class="text-right">Vat</span>
+            <span class="text-right">Quantity</span>
+            <span class="text-right">VAT</span>
             <span class="text-right">Total</span>
-            <span class="text-right">Del</span>
+            <span class="text-right"></span>
           </div>
-          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 p-1 border-b items-center" >
+          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 px-1 border-b items-center" >
             <span class="text-left">{{ index+1 }}</span>
            
             <span class="text-left col-span-3">{{ item.name }} <br> {{ item.item_name_arabic }}</span>
@@ -22,7 +22,7 @@
             <span class="bg-gray-600 text-center ml-2" @click="editQty(item)">{{ item.quantity }}</span>
             <span class="text-right">{{ getItemVatAndTotal(item).tax }}</span>
             <span class="text-right">{{ getItemVatAndTotal(item).totalWithTax }}</span>
-            <span class="text-right"><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
+            <span class="text-right"><button class="text-red-500 text-2xl"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
           </div>
         </div>
       </div>
@@ -37,13 +37,13 @@
           <span>VAT:</span>
           <span>{{  vat }}</span>
         </div>
-        <div class="flex justify-between font-bold mb-4">
+        <div class="flex justify-between font-bold mb-1">
           <span>Total:</span>
           <span>{{  total }}</span>
           
         </div>
         <div class="flex justify-between ">
-          <button v-if="cart.length > 0" ref="PaymentBtn" class="p-1 my-2 w-full bg-green-600 text-white text-xl" @click="payNow">
+          <button v-if="cart.length > 0" ref="PaymentBtn" class="p-1 my-1 w-full bg-green-600 text-white text-xl" @click="payNow">
              Pay Now
           </button>
         </div>
