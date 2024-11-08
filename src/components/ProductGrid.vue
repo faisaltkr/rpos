@@ -32,7 +32,7 @@
         <span class="col-span-2">{{ item.item_name }} <br> {{ item.item_name_arabic }}</span>
         <span class="col">{{ item.price.toFixed(2) }}</span>
         <span class="col">{{ item.stock_uom }}</span>
-        <span class="col text-right">{{ item.standard_rate }}</span>
+        <span class="col text-right">{{ Number(item.standard_rate).toFixed(2) }}</span>
         <!-- <span class="col">{{ (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate+"%" : 0+"%" }}</span> -->
         
         
