@@ -215,7 +215,7 @@ import { sum } from '@/helper';
               item_code:0,
               rate:0
             },
-            companyDet:JSON.parse(localStorage.getItem('company'))
+            companyDet:JSON.parse(localStorage.getItem('company')),
         }
     },
     props: {
@@ -483,11 +483,11 @@ import { sum } from '@/helper';
     if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
       
         const token = localStorage.getItem('token'); // Retrieve token from localStorage
-        const printFormat = "POS POS Invoice"; // Replace with your print format or variable
+        const printFormat = this.settings.printFormat || "POS Invoice"; // Replace with your print format or variable
         
        // const targetUrl = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
 
-        const url = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&key=None&format=${printFormat}`;
+        const url = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&key=None&format=${printFormat}`;
 
         try {
             // Fetch the image as a blob with authorization headers
