@@ -252,7 +252,7 @@ import { getItemVatAndTotal, sum } from '@/helper';
         //return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
-        return sum(this.cart.map(getItemVatAndTotal).map(x => x.totalWithTax))
+        return sum(this.cart.map(getItemVatAndTotal).map(x => x.totalWithTax))?.toFixed(2)
       },
       amountGiven(){
         let amount = parseFloat(this.cash)+parseFloat(this.bankCard);
