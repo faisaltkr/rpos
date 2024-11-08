@@ -18,10 +18,10 @@
             <span class="text-left">{{ index+1 }}</span>
            
             <span class="text-left col-span-3">{{ item.name }} <br> {{ item.item_name_arabic }}</span>
-            <span class="text-right">{{ item.price }}</span>
+            <span class="text-right">{{ Number(item.price || 0).toFixed(2) }}</span>
             <span class="bg-gray-600 text-center ml-2" @click="editQty(item)">{{ item.quantity }}</span>
-            <span class="text-right">{{ item.vat }}</span>
-            <span class="text-right">{{ item.total }}</span>
+            <span class="text-right">{{ getItemVatAndTotal(item).tax }}</span>
+            <span class="text-right">{{ getItemVatAndTotal(item).totalWithTax }}</span>
             <span class="text-right"><button class="text-red-500"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
           </div>
         </div>
@@ -174,9 +174,8 @@ import moment from 'moment';
 
 import * as JSPM from 'jsprintmanager';
 
-import Decimal from 'decimal.js-light';
 
-import { sum } from '@/helper';
+import { getItemVatAndTotal, sum } from '@/helper';
 
 // import PaymentModal from './PaymentModal.vue';
 
@@ -246,15 +245,14 @@ import { sum } from '@/helper';
       
       
       subtotal() {
-
-        return sum(this.cart.map((x) => x.total)).minus(this.vat)
+        return sum(this.cart.map(getItemVatAndTotal).map(x => x.total))
       },
       vat() {
-        return sum(this.cart.map((x) => x.vat))
+        return sum(this.cart.map(getItemVatAndTotal).map(x => x.tax))
         //return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
-        return new Decimal(this.subtotal || 0).add( this.vat||0).minus(this.discountAmount).toString()
+        return sum(this.cart.map(getItemVatAndTotal).map(x => x.totalWithTax))
       },
       amountGiven(){
         let amount = parseFloat(this.cash)+parseFloat(this.bankCard);
@@ -288,8 +286,9 @@ import { sum } from '@/helper';
     },
     methods: {
     
-
-      
+      getItemVatAndTotal(item) {
+        return getItemVatAndTotal(item)
+      },
 
     increment(item_code) {
       this.cartUpdate.qty += 1;
