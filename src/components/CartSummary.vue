@@ -17,7 +17,7 @@
           <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 px-1 border-b items-center" >
             <span class="text-left">{{ index+1 }}</span>
            
-            <span class="text-left col-span-3">{{ item.name }} <br> {{ item.item_name_arabic }}</span>
+            <span class="text-left col-span-3">{{ item.name }} <br> <span style="position: relative; top: -5px">{{ item.item_name_arabic }}</span></span>
             <span class="text-right">{{ Number(item.price || 0).toFixed(2) }}</span>
             <span class="bg-gray-600 text-center ml-2" @click="editQty(item)">{{ item.quantity }}</span>
             <span class="text-right">{{ getItemVatAndTotal(item).tax }}</span>
