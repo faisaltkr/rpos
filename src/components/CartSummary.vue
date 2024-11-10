@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col h-full">
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto" id="selected-product-grid">
         <div v-if="cart.length === 0" class="text-gray-500 text-center">
           No items
         </div>
@@ -245,10 +245,10 @@ import { getItemVatAndTotal, sum } from '@/helper';
       
       
       subtotal() {
-        return sum(this.cart.map(getItemVatAndTotal).map(x => x.total))
+        return sum(this.cart.map(getItemVatAndTotal).map(x => x.total)).toFixed(2)
       },
       vat() {
-        return sum(this.cart.map(getItemVatAndTotal).map(x => x.tax))
+        return sum(this.cart.map(getItemVatAndTotal).map(x => x.tax)).toFixed(2)
         //return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
