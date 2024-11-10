@@ -186,9 +186,11 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
       },
       addToCart(item) {
         const selectedProductsGrid = document.getElementById('selected-product-grid');
-              setTimeout(() => {
-          selectedProductsGrid.scrollTop = selectedProductsGrid.scrollHeight; 
-        }, 0);
+        if(selectedProductsGrid) {
+          setTimeout(() => {
+            selectedProductsGrid.scrollTop = selectedProductsGrid.scrollHeight; 
+          }, 0);
+        }
  
       // Check if item already exists in cart
       const existingItem = this.cart.find(cartItem => cartItem.item_code === item.item_code);
