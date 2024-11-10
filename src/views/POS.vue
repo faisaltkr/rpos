@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <FooterViewComponent @clear-order="ClearOrder" :cart="cart" :viewMode="viewMode" @toggle-view="toggleViewMode" @lock="DeskLock"></FooterViewComponent>
+      <FooterViewComponent @clear-order="ClearOrder" :cart="cart" :viewMode="viewMode" @toggle-view="toggleViewMode" @hold="holdCart" @lock="DeskLock"></FooterViewComponent>
 
 
       <div v-if="showReturn" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
@@ -221,6 +221,15 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
         item.vat = (item.total*item.vatRate)/100 || 0;
         item.total = item.total+item.vat;
       });
+      
+    },
+    holdCart() {
+      if(!this.cart.length) {
+        return;
+      }
+      localStorage.setItem('holded-cart', JSON.stringify(this.cart));
+      this.ClearOrder();
+
     },
       calculateTotals() {
         this.cart.forEach(item => {

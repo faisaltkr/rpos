@@ -5,7 +5,7 @@
         <button class="btn bg-red-600 text-white" v-if="cart.length > 0" @click="$emit('clear-order')">Clear Order</button>
       <button class="btn bg-gray-600 text-white" @click="$emit('lock')">Lock</button>
       <button class="btn bg-gray-600 text-white" @click="$emit('repeat-round')">Repeat Round</button> 
-        <button @click="hold" class="bg-yellow-500 text-white px-4 py-2 rounded">Hold</button>
+        <button @click="$emit('hold')" class="bg-yellow-500 text-white px-4 py-2 rounded">Hold</button>
         <button @click="returnItem" class="bg-blue-500 text-white px-4 py-2 rounded">Return</button>
       </div>
     </div>
