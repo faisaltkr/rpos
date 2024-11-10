@@ -3,6 +3,7 @@
       <button class="pl-2 bg-gray-700" @click="$emit('toggle-view')">{{ viewMode==='Grid' ? 'List' : 'Grid' }}</button>
       <div class="flex space-x-2">
         <button class="btn bg-red-600 text-white" v-if="cart.length > 0" @click="$emit('clear-order')">Clear Order</button>
+      <button class="btn bg-gray-600 text-white" @click="$emit('open-drawer')">Open Drawer</button>
       <button class="btn bg-gray-600 text-white" @click="$emit('lock')">Lock</button>
       <button class="btn bg-gray-600 text-white" @click="$emit('repeat-round')">Repeat Round</button> 
         <button @click="$emit('hold')" class="bg-yellow-500 text-white px-4 py-2 rounded">Hold</button>

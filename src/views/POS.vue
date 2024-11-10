@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <FooterViewComponent @clear-order="ClearOrder" :cart="cart" :viewMode="viewMode" @toggle-view="toggleViewMode" @hold="holdCart" @lock="DeskLock"></FooterViewComponent>
+      <FooterViewComponent @clear-order="ClearOrder" :cart="cart" :viewMode="viewMode" @toggle-view="toggleViewMode" @hold="holdCart" @lock="DeskLock" @open-drawer="openDrawer"></FooterViewComponent>
 
 
       <div v-if="showReturn" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
@@ -97,7 +97,7 @@
   import HeaderNav from '@/components/HeaderNav.vue';
 import FooterViewComponent from '@/components/FooterViewComponent.vue';
 
-
+import * as JSPM from 'jsprintmanager';
 
   
   
@@ -291,6 +291,20 @@ import FooterViewComponent from '@/components/FooterViewComponent.vue';
         this.filteredCustomers = [];
         this.$emit('customer-cleared');
       },
+      async openDrawer() {
+          JSPM.JSPrintManager.auto_reconnect = true;
+          JSPM.JSPrintManager.start();
+
+          if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
+              const cpj = new JSPM.ClientPrintJob();
+              cpj.clientPrinter = new JSPM.DefaultPrinter();
+              const drawerCommand = new JSPM.PrintFileTXT('', JSPM.FileSourceType.Text, 'drawer.txt');
+              cpj.files.push(drawerCommand);
+              cpj.sendToClient();
+          } else {
+              alert('Printer not configured');
+          }
+      }
     },
    
   }
