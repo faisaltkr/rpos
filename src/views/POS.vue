@@ -298,13 +298,18 @@ import * as JSPM from 'jsprintmanager';
           if (JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open) {
               const cpj = new JSPM.ClientPrintJob();
               cpj.clientPrinter = new JSPM.DefaultPrinter();
-              const drawerCommand = new JSPM.PrintFileTXT('', JSPM.FileSourceType.Text, 'drawer.txt');
+
+              // Send a raw command (like a space character) to open the drawer
+              const drawerCommand = new JSPM.PrintFileTXT(' ', JSPM.FileSourceType.Text);
               cpj.files.push(drawerCommand);
+
+              // Send the print job to the client
               cpj.sendToClient();
           } else {
               alert('Printer not configured');
           }
       }
+
     },
    
   }

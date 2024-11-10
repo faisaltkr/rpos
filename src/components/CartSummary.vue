@@ -245,10 +245,10 @@ import { getItemVatAndTotal, sum } from '@/helper';
       
       
       subtotal() {
-        return sum(this.cart.map(getItemVatAndTotal).map(x => x.total))
+        return sum(this.cart.map(getItemVatAndTotal).map(x => x.total)).toFixed(2)
       },
       vat() {
-        return sum(this.cart.map(getItemVatAndTotal).map(x => x.tax))
+        return sum(this.cart.map(getItemVatAndTotal).map(x => x.tax)).toFixed(2)
         //return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {

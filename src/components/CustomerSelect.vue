@@ -17,7 +17,7 @@
         >✖
         </button>
       </div>
-      <ul v-if="filteredCustomers.length > 0 && showList" class="absolute border bg-gray-800 rounded-md mt-2 max-h-48 overflow-y-auto w-100">
+      <ul v-if="filteredCustomers.length > 0 && showList" class="absolute border bg-gray-800 rounded-md mt-2 max-h-48 overflow-y-auto w-100 min-w-[360px]">
         <li
           v-for="customer in filteredCustomers"
           :key="customer.id"
