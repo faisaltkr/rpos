@@ -74,7 +74,7 @@
       },
       clearCustomer() {
         this.selectedCustomer = null;
-        this.searchQuery = '';
+        this.searchQuery = 'CASH';
         this.filteredCustomers = [];
         this.$emit('customer-cleared');
       },
