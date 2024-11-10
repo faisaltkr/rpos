@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col h-full">
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto" id="selected-product-grid">
         <div v-if="cart.length === 0" class="text-gray-500 text-center">
           No items
         </div>
