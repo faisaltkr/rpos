@@ -4,7 +4,11 @@
 
 		<HeaderNav></HeaderNav>
 
-		<h1 class="text-3xl m-5 flex items-center"><RouterLink to="/dashboard"><ArrowLeftIcon class="size-6 text-white mr-4 cursor-pointer" /></RouterLink> Invoice Details</h1>
+		<h1 class="text-3xl m-5 flex items-center">
+			<RouterLink to="/dashboard">
+				<ArrowLeftIcon class="size-6 text-white mr-4 cursor-pointer" />
+			</RouterLink> Invoice Details
+		</h1>
 		<div class="m-4">
 			<h2 class="text-2xl mb-4">Sales Invoice Details</h2>
 			<table v-if="invoiceData" class="min-w-full rounded-lg shadow-md overflow-y-scroll">
@@ -16,7 +20,8 @@
 					<!-- <th class="bg-black">Tax</th> -->
 				</tr>
 				<tr v-bind:key="data.name" v-for="data in invoiceData.items">
-					<td class="w-10"><input type="checkbox" @change="toggleSelection(data)" :checked="selectedItems.find(x => x.name)" /></td>
+					<td class="w-10"><input type="checkbox" @change="toggleSelection(data)"
+							:checked="selectedItems.find(x => x.name)" /></td>
 					<td>({{ data.item_code }}) {{ data.item_name }}</td>
 					<td>{{ data.qty }}</td>
 					<td>{{ (data.rate * 100 * data.qty) / 100 }}</td>
@@ -44,9 +49,9 @@ import { ArrowLeftIcon } from '@heroicons/vue/24/solid'
 
 export default {
 	components: {
-    HeaderNav,
+		HeaderNav,
 		ArrowLeftIcon
-  },
+	},
 	data() {
 		return {
 			selectedItems: []
