@@ -57,7 +57,14 @@ const routes = [
     meta: {
       requiresAuth: true
     }
-  }
+  },
+  {
+    path: "/invoice/:id",
+    component: () => import('../views/InvoiceDetailView.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
 ];
 
 const router = createRouter({
