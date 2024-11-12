@@ -1,14 +1,9 @@
+
 <template>
-
-<div class="flex flex-col w-screen h-screen bg-gray-800 text-white">
-      
+  <div class="flex flex-col w-screen h-screen bg-gray-800 text-white">
     <HeaderNav></HeaderNav>
-
-
-    <h2 class="m-5">Coming Soon ...</h2>
-
-</div>
-
+    
+  </div>
 </template>
 
 
@@ -22,13 +17,29 @@ export default {
   data() {
     return {
       baseURL: localStorage.getItem('baseURL'),
-      
+      targetUrl: ''
     };
+  },
+
+  mounted(){
+    this.getReport()
   },
   methods: {
 
+    
+
     getReport(){
-      var targetUrl = this.baseURL+`/report/Cheques and Deposits Incorrectly cleared`;
+      //var targetUrl = this.baseURL+`/report/Cheques and Deposits Incorrectly cleared`;
+      const filterVars = JSON.stringify({
+      "fiscal_year": "2024",       
+      "from_date": "2024-01-01", 
+      "to_date": "2024-12-31",    
+      "company":"Exone Technologies",
+      "based_on": "Customer",
+      "period": "Monthly" 
+    });
+      var targetUrl = this.baseURL+`/api/method/frappe.desk.query_report.run?report_name=Sales Invoice Trends
+&filters=${filterVars}`;
 
         fetch(targetUrl, {
           method: 'GET',
@@ -36,19 +47,15 @@ export default {
             Authorization: 'Basic '+localStorage.getItem('token'),
           }
         })
-        .then(response => response.json())
-        .then(data => {
-          // Do something with the data or open it in a new window
-          const newWindow = window.open();
-          newWindow.document.write(JSON.stringify(data));
+        .then(response => {
+            console.log(response.data);
+            
+
         })
         .catch(error => console.error('Error:', error));
     }
    
-  },
-  mounted() {
-    //this.getReport()
-  },
+  }
 };
 </script>
 

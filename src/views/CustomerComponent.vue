@@ -1,101 +1,80 @@
 <template>
  
-  <div :class="[$i18n.locale === 'ar' ? 'rtl' : 'ltr']" class="window w-screen h-screen overflow-hidden">
+  <div class="flex flex-col w-screen h-screen bg-gray-800 text-white">
     <HeaderNav />
   
-
-    <h1>Coming Soon</h1>
-
-    <!-- <div class="form-container mx-auto p-8 shadow-md bg-gray-700">
-      <h2 class="text-3xl font-semibold mb-6">{{ $t('CreateCustomer') }}</h2>
-
-      <form @submit.prevent="registerCustomer">
-       
-        <div class="form-group mb-6">
-          <label for="customerName" class="block text-sm font-medium">{{ $t('customerName') }}</label>
-          <input 
-            type="text" 
-            id="customerName" 
-            v-model="customer.name" 
-            class="mt-2 block w-full p-3 border border-gray-300 focus:outline-none focus:ring focus:border-blue-500"
-            placeholder="Enter Customer Name"
-            required 
-          />
-        </div>
-
-       
-        <div class="form-group mb-6">
-          <label for="customerCode" class="block text-sm font-medium">{{ $t('customerCode') }}</label>
-          <input 
-            type="text" 
-            id="customerCode" 
-            v-model="customer.code" 
-            class="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-500"
-            placeholder="Enter Customer Code"
-            required 
-          />
-        </div>
-
-        <div class="form-group mb-6">
-          <label for="address" class="block text-sm font-medium">{{ $t('address') }}</label>
-          <textarea 
-            id="address" 
-            v-model="customer.address" 
-            class="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-500"
-            placeholder="Enter Address"
-            required 
-          ></textarea>
-        </div>
-
-       
-        <div class="form-group mb-6">
-          <label for="customerType" class="block text-sm font-medium">{{ $t('customerType') }}</label>
-          <select 
-            id="customerType" 
-            v-model="customer.type" 
-            class="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-500"
-            required
-          >
-            <option value="cash">{{ $t('cashCustomer') }}</option>
-            <option value="credit">{{ $t('creditCustomer') }}</option>
-          </select>
-        </div>
-
+    <div class="container mx-auto mt-2">
+      <h1 class="text-white text-4xl my-4">Add Customer</h1>
+    <div class="flex-1 flex overflow-hidden loading">
       
-        <div class="form-group mb-6">
-          <label for="mobile" class="block text-sm font-medium">{{ $t('mobile') }}</label>
-          <input 
-            type="text" 
-            id="mobile" 
-            v-model="customer.mobile" 
-            class="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-500"
-            placeholder="Enter Mobile Number"
-            required 
-          />
-        </div>
+      <form @submit.prevent="createCustomer">
+      <div class="grid grid-cols-2 gap-4 m-2 p-4">
+        
 
-       
-        <div class="form-group mb-6">
-          <label for="place" class="block text-sm font-medium">{{ $t('place') }}</label>
-          <input 
-            type="text" 
-            id="place" 
-            v-model="customer.place" 
-            class="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-500"
-            placeholder="Enter Place"
-            required 
-          />
-        </div>
+            <div>
+              <label for="" class="text-white">Customer Name</label>
+              <input type="text" v-model="customer.customer_name" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
 
-  
-        <button 
-          type="submit" 
-          class="w-full bg-blue-500 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
-        >
-          {{ $t('register') }}
-        </button>
-      </form>
-    </div> -->
+            <div>
+              <label for="" class="text-white">Territory</label>
+              <input type="text" v-model="customer.territory" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+            <div>
+              <label for="" class="text-white">Zatca Simplified ( B2C )</label>
+              <input type="checkbox" v-model="customer.custom_b2c" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+
+            <div>
+              <label for="" class="text-white">Customer Name in Arabic</label>
+              <input type="text" v-model="customer.customer_name_in_arabic" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+            <div>
+              <label for="" class="text-white">Customer Type</label>
+              <input type="text" v-model="customer.customer_type" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+
+            <div>
+              <label for="" class="text-white">Customer Group</label>
+              <input type="text" v-model="customer.customer_group" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+            <div>
+              <label for="" class="text-white">Mobile</label>
+              <input type="text" v-model="customer.mobile_no" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+
+            <div>
+              <label for="" class="text-white">Email Id</label>
+              <input type="text" v-model="customer.email_id" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+
+            <div>
+              <label for="" class="text-white">Street Name</label>
+              <input type="text" v-model="customer.address_line1" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+
+            <div>
+              <label for="" class="text-white">Building Number</label>
+              <input type="text" v-model="customer.address_line2" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+            <div>
+              <label for="" class="text-white">City</label>
+              <input type="text" v-model="customer.city" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+
+            <div>
+              <label for="" class="text-white">Country</label>
+              <input type="text" v-model="customer.country" class="mt-2 p-2 text-white bg-gray-600">
+            </div>
+            <div class="text-right">
+              <button class="p-2 px-10  bg-green-600 ">Save</button>
+           </div>
+            
+        
+      </div>
+    </form>
+    </div>
+  </div>
 
   </div>
 
@@ -112,20 +91,27 @@ export default {
   },
   data() {
     return {
+      baseURL:localStorage.getItem('baseURL'),
       customer: {
-        name: '',
-        code: '',
-        address: '',
-        type: 'cash',  // Default to 'cash'
-        mobile: '',
-        place: ''
+        customer_name: '',
+        customer_group: 'All Customer Groups',
+        territory: 'All Territories',
+        customer_name_in_arabic:"",
+        custom_b2c:0,
+        customer_type: 'Individual',  // Default to 'cash'
+        mobile_no: '1234567890',
+        email_id: '',
+        address_line1:"",
+        city:"",
+        country:"SA"
       }
     };
   },
   methods: {
-    async registerCustomer() {
+    async createCustomer() {
       try {
-        const response = await fetch('https://dummyjson.com/customers/add', { // Replace with actual API endpoint
+
+        const response = await fetch(this.baseURL+'/api/resource/Customer', { // Replace with actual API endpoint
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -147,12 +133,17 @@ export default {
     },
     clearForm() {
       this.customer = {
-        name: '',
-        code: '',
-        address: '',
-        type: 'cash',
-        mobile: '',
-        place: ''
+        customer_name: '',
+        customer_group: 'All Customer Groups',
+        territory: 'All Territories',
+        customer_name_in_arabic:"",
+        custom_b2c:0,
+        customer_type: 'Individual',  // Default to 'cash'
+        mobile_no: '1234567890',
+        email_id: '',
+        address_line1:"",
+        city:"",
+        country:"SA"
       };
     }
   }
@@ -160,27 +151,5 @@ export default {
 </script>
 
 <style scoped>
-.form-container {
-  background-color: #f9f9f9;
-}
 
-input[type="text"],
-textarea,
-select {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  border-radius: 5px;
-}
-
-button {
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
 </style>
