@@ -45,7 +45,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="sale in salesData" :key="sale.name" class="hover:bg-gray-100">
+          <tr v-for="sale in salesData" :key="sale.name" class="hover:bg-gray-100" @click="() => navigateToDetails(sale.name)">
             <td class="py-2 px-4 border-b">{{ sale.posting_date }}</td>
             <td class="py-2 px-4 border-b">{{ sale.name }}</td>
             <td class="py-2 px-4 border-b">{{ sale.customer_name }}</td>
@@ -164,7 +164,6 @@ import HeaderNav from "../components/HeaderNav.vue";
 import axios from "axios";
 
 
-
 export default {
   components: {
     HeaderNav
@@ -214,6 +213,9 @@ export default {
     // }
   },
   methods: {
+    navigateToDetails(id) {
+      this.$router.push(`/invoice/${id}`)
+    },
     async fetchDashboardData() {
       try {
         
