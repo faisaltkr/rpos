@@ -68,18 +68,18 @@
           </div>
           <div>
             <label class="block text-white">Discount Amount</label>
-            <input type="text" class="text-white  w-full p-4 text-4xl" v-model="discountAmount" />
+            <input type="text" @click="clearInput" class="text-white  w-full p-4 text-4xl" v-model="discountAmount" />
           </div>
           <div >
             <!-- <label class="block text-white">Cash</label> -->
             
-            <button @click="cashSale" class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Cash</button>
-            <button @click="BankSale" class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Bank Card</button>
+            <button class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Cash</button>
+            <button class="mt-2 w-full bg-teal-500 text-white p-3 text-3xl">Bank Card</button>
           </div>
           <div class="mt-2">
             <!-- <label class="block text-white">Bank Card</label> -->
-            <input type="text"  ref="cashInput" :disabled="cash_disabled" :class="{'disabled':cash_disabled}" class="text-white mb-2  w-full p-3 text-3xl" v-model="cash" />
-            <input type="text" :disabled="bank_disabled" :class="{'disabled':bank_disabled}" class="text-white  w-full p-3 text-3xl" v-model="bankCard" />
+            <input type="text" @click="clearInput" @keydown.enter="focusSubmitPrintButton"  ref="cashInput"  class="text-white mb-2  w-full p-3 text-3xl" v-model="cash" />
+            <input type="text" @click="clearInput" @keydown.enter="focusSubmitPrintButton" class="text-white  w-full p-3 text-3xl" v-model="bankCard" />
             
           </div>
         </div>
@@ -113,10 +113,10 @@
           </div>
 
           <div>
-            <button v-if="amountGiven" @click="saveInvoice()" class="w-full bg-green-500 text-white px-2 py-2 mr-2">Submit</button>
+            <button v-if="amountGiven" @click="saveInvoice()"  class="w-full bg-green-500 text-white px-2 py-2 mr-2">Submit</button>
           </div>
           <div>
-            <button v-if="amountGiven" @click="saveInvoice()" class="w-full bg-green-500 text-white px-2 py-2 mr-2">Submit & Print</button>
+            <button v-if="amountGiven" @click="saveInvoice()" ref="submitPrintButton" class="w-full bg-green-500 text-white px-2 py-2 mr-2">Submit & Print</button>
           </div>
 
           <div class="col-span-2">
@@ -242,8 +242,8 @@ import { getItemVatAndTotal, sum } from '@/helper';
 
     computed: {
 
-      
-      
+
+
       subtotal() {
         return sum(this.cart.map(getItemVatAndTotal).map(x => x.total)).toFixed(2)
       },
@@ -252,7 +252,8 @@ import { getItemVatAndTotal, sum } from '@/helper';
         //return this.cart.reduce((acc, item) => acc + (item.vat ? parseFloat(item.vat) : 0), 0);
       },
       total() {
-        return sum(this.cart.map(getItemVatAndTotal).map(x => x.totalWithTax))?.toFixed(2)
+        const t = sum(this.cart.map(getItemVatAndTotal).map(x => x.totalWithTax))?.toFixed(2)
+        return t-this.discountAmount;
       },
       amountGiven(){
         let amount = parseFloat(this.cash)+parseFloat(this.bankCard);
@@ -262,12 +263,18 @@ import { getItemVatAndTotal, sum } from '@/helper';
         return false;
       },
       balance(){
-          if(this.cash > 0 || this.bankCard > 0){
-            let amt = parseFloat(this.cash)+parseFloat(this.bankCard) - this.total; 
-            return Math.round(amt)
+          var bal = this.total;
+          if(this.cash > 0 ){
+            bal = bal-this.cash;
+            //let amt = parseFloat(this.cash)+parseFloat(this.bankCard) - this.total; 
+            //return Math.round(amt)
             // return amt.toFixed(2)
           }
-          return 0;
+          if(this.bankCard > 0 ){
+            bal = bal-this.bankCard;
+          }
+          
+          return Math.round(bal)
       },
       paymentMethods(){
           let paymentMethods=[]
@@ -284,7 +291,18 @@ import { getItemVatAndTotal, sum } from '@/helper';
         },
       
     },
+
     methods: {
+
+      focusSubmitPrintButton() {
+        if(this.balance<=0)
+        {
+          this.$refs.submitPrintButton.focus();
+        }
+      },
+      clearInput(event) {
+        event.target.value = '';  // Clears the clicked input
+      },
     
       getItemVatAndTotal(item) {
         return getItemVatAndTotal(item)
@@ -351,16 +369,16 @@ import { getItemVatAndTotal, sum } from '@/helper';
             this.cash_disabled = false;
             this.bank_disabled = true;
         },
-        cashSale(){
-          this.cash_disabled = !this.cash_disabled;
-          this.cash = "";
-          this.bankCard = 0;
-        },
-        BankSale(){
-            this.bank_disabled = !this.bank_disabled;
-            this.cash = 0;
-            this.bankCard = "";
-        },
+        // cashSale(){
+        //   this.cash_disabled = !this.cash_disabled;
+        //   this.cash = "";
+        //   this.bankCard = 0;
+        // },
+        // BankSale(){
+        //     this.bank_disabled = !this.bank_disabled;
+        //     this.cash = 0;
+        //     this.bankCard = "";
+        // },
         creditSale(){
             this.balance = 0;
             this.cash = 0;
@@ -484,9 +502,9 @@ import { getItemVatAndTotal, sum } from '@/helper';
         const token = localStorage.getItem('token'); // Retrieve token from localStorage
         const printFormat = this.settings.printFormat || "POS Invoice"; // Replace with your print format or variable
         
-       // const targetUrl = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
+        //const url = `https://dev14.erpx.one/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
 
-        const url = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&key=None&format=${printFormat}`;
+        const url = this.baseURL+`/api/method/frappe.utils.print_format.download_pdf?doctype=Sales%20Invoice&name=${invoiceName}&format=${printFormat}`;
 
         try {
             // Fetch the image as a blob with authorization headers

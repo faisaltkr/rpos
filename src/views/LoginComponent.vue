@@ -171,6 +171,7 @@ export default {
               JSON.stringify(response.data.message.user_details)
             );
             this.companyName = response.data.message.pos_profile_details[0].company
+            localStorage.setItem("companyName", this.companyName);
             
             let customersUri =
               this.baseURL + "/api/method/exone_api.masters.get_customers";
@@ -188,7 +189,7 @@ export default {
 
             let items =
               this.baseURL +
-              "/api/method/exone_api.masters.get_items_with_tax_template";
+              `/api/method/exone_api.masters.get_items_with_tax_template?company_name=${this.companyName}`;
             axios
               .get(items, {
                 headers: {

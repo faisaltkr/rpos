@@ -99,11 +99,11 @@ export default {
         customer_name_in_arabic:"",
         custom_b2c:0,
         customer_type: 'Individual',  // Default to 'cash'
-        mobile_no: '1234567890',
+        mobile_no: '',
         email_id: '',
         address_line1:"",
         city:"",
-        country:"SA"
+        country:"Saudi Arabia"
       }
     };
   },

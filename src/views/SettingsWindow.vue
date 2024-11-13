@@ -60,6 +60,7 @@ export default {
   data() {
     return {
       baseURL:localStorage.getItem('baseURL'),
+      companyName:localStorage.getItem('companyName'),
       settings:{
         printer : "",
         printFormat:""
@@ -99,7 +100,7 @@ export default {
             localStorage.setItem("customers", jsonData);
           });
 
-      let itemURL =this.baseURL +"/api/method/exone_api.masters.get_items_with_tax_template";
+      let itemURL =this.baseURL +`/api/method/exone_api.masters.get_items_with_tax_template?company_name=${this.companyName}`;
       axios.get(itemURL, {
         headers: {
           Authorization: `Basic ${localStorage.getItem("token")}`,
