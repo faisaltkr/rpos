@@ -294,9 +294,10 @@ import { getItemVatAndTotal, sum } from '@/helper';
 
     methods: {
 
-      focusSubmitPrintButton() {
+      focusSubmitPrintButton(event) {
         if(this.balance<=0)
         {
+          event.preventDefault();
           this.$refs.submitPrintButton.focus();
         }
       },
