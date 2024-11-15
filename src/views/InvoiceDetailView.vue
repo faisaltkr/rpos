@@ -72,12 +72,12 @@ export default {
 			return getItemVatAndTotal(item)
 		},
 		toggleSelection(item) {
-			const indexIfAlreadyExist = this.selectedItems.findIndex(x => x === item.name);
+			const indexIfAlreadyExist = this.selectedItems.findIndex(x => x.item_code === item.item_code);
 			const itemExist = indexIfAlreadyExist > -1;
 			if (itemExist) {
-				this.selectedItems.splice(indexIfAlreadyExist, 1)
+				this.selectedItems.splice(indexIfAlreadyExist, 1);
 			} else {
-				this.selectedItems.push(item.name);
+				this.selectedItems.push(item);
 			}
 		},
 		async saveInvoice() {
@@ -86,12 +86,13 @@ export default {
 					alert('Please select some items.');
 					return;
 				}
+				console.log(this.selectedItems)
 
 				let items = this.selectedItems.map(item => {
 					return {
 						item_code: item.item_code,
-						qty: item.quantity,
-						rate: item.price,
+						qty: item.qty,
+						rate: item.rate,
 						vat: item.vatRate,
 						vat_amount: item.vat
 					};
