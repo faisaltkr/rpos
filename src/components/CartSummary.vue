@@ -5,53 +5,60 @@
           No items
         </div>
         <div v-else>
-          <div class="font-bold grid grid-cols-9 px-2 pb-2 border-b tex-lg text-sm font-bold-lg">
+          <div class="font-bold grid grid-cols-10 px-2 pb-2 border-b tex-lg text-sm font-bold-lg">
             <span class="text-left" >#</span>
             <span class="text-left col-span-3">Item</span>
             <span class="text-right">Rate</span>
+            <span class="text-right">UOM</span>
             <span class="text-right">Quantity</span>
             <span class="text-right">VAT</span>
             <span class="text-right">Total</span>
             <span class="text-right"></span>
           </div>
-          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-9 px-1 border-b items-center" >
+          <div v-for="(item, index) in cart" :key="index" class="grid grid-cols-10 px-1 border-b items-center" >
             <span class="text-left">{{ index+1 }}</span>
            
             <span class="text-left col-span-3">{{ item.name }} <br> <span style="position: relative; top: -5px">{{ item.item_name_arabic }}</span></span>
-            <span class="text-right">{{ Number(item.price || 0).toFixed(2) }}</span>
+            <span class="text-right">{{ truncateToTwoDecimals(Number(item.price || 0)) }}</span>
+            <span class="text-right">{{ item.uom }}</span>
             <span class="bg-gray-600 text-center ml-2" @click="editQty(item)">{{ item.quantity }}</span>
-            <span class="text-right">{{ getItemVatAndTotal(item).tax }}</span>
+            <span class="text-right">{{ truncateToTwoDecimals(getItemVatAndTotal(item).tax) }}</span>
             <span class="text-right">{{ getItemVatAndTotal(item).totalWithTax }}</span>
             <span class="text-right"><button class="text-red-500 text-2xl"  @click="emitRemoveItem(index)"><i class="fa fa-trash"></i></button></span>
           </div>
         </div>
       </div>
-  
-      <div class="bg-gray-800 p-2 mt-2 rounded-lg">
-        <div class="flex justify-between mb-2">
-          <span>Subtotal:</span>
+      
+      <div class="grid grid-cols-2">
+        <div class="bg-gray-800 p-2 mt-2 ">
+        <div class="flex mb-2">
+          <span class="text-2xl">Subtotal :</span>
           
-          <span>{{ subtotal }}</span>
+          <span class="text-2xl ml-5 font-bold ">{{ truncateToTwoDecimals(subtotal) }}</span>
+      
         </div>
-        <div class="flex justify-between mb-2">
-          <span>VAT:</span>
-          <span>{{  vat }}</span>
-        </div>
-        <div class="flex justify-between font-bold mb-1">
-          <span>Total:</span>
-          <span>{{  total }}</span>
+        <div class="flex mb-2">
           
+          <span class="text-2xl">VAT :</span>
+          <span class="text-2xl font-bold ml-20">{{  truncateToTwoDecimals(vat) }}</span>
+       
         </div>
-        <div class="flex justify-between ">
+
+
+      </div>
+
+      <div class="bg-gray-800 p-2 mt-2 ">
+        <div class="flex justify-between pt-5 font-bold mb-1">
+          <span class="text-3xl">TOTAL : </span>
+          <span class="text-3xl">{{  total?.toFixed(2) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-between ">
           <button v-if="cart.length > 0" ref="PaymentBtn" class="p-1 my-1 w-full bg-green-600 text-white text-xl" @click="payNow">
              Pay Now
           </button>
         </div>
-
-        
-
-    
-      </div>
 
 
      <!-- <PaymentModal :cart="cart" :cartTotal="total" :vatTotal="vat" :showPayment="showPayment"></PaymentModal> -->
@@ -79,7 +86,7 @@
           <div class="mt-2">
             <!-- <label class="block text-white">Bank Card</label> -->
             <input type="text" @click="clearInput" @keydown.enter="focusSubmitPrintButton"  ref="cashInput"  class="text-white mb-2  w-full p-3 text-3xl" v-model="cash" />
-            <input type="text" @click="clearInput" @keydown.enter="focusSubmitPrintButton" class="text-white  w-full p-3 text-3xl" v-model="bankCard" />
+            <input type="text" @click="clearInput" @keydown.enter="focusSubmitPrintButton"  class="text-white  w-full p-3 text-3xl" v-model="bankCard" />
             
           </div>
         </div>
@@ -154,7 +161,7 @@
           
           <div class="grid grid-cols-1 gap-4 mt-3">
           <div >
-            <button @click="showEdit=false" class="w-full bg-red-500 text-white px-2 py-2">Close</button>
+            <button @click="showEdit=false" class="w-full bg-green-500 text-white px-2 py-2">OK</button>
           </div>
           <!-- <div>
             <button @click="updateItemQuantity(cartUpdate.item_code, cartUpdate.qty)" class="w-full bg-green-500 text-white px-2 py-2">OK</button>
@@ -274,25 +281,42 @@ import { getItemVatAndTotal, sum } from '@/helper';
             bal = bal-this.bankCard;
           }
           
-          return Math.round(bal)
+          return bal
       },
       paymentMethods(){
           let paymentMethods=[]
             if(this.cash > 0)
             {
-              paymentMethods.push({mode_of_payment:"Cash",amount:this.cash})
+              // if(this.cash > this.total)
+              // {
+              //   this.cash = this.total;
+              // }
+              paymentMethods.push({
+                mode_of_payment:"Cash",
+                amount:this.cash
+              })
             } 
             if(this.bankCard > 0)
             {
-              paymentMethods.push({mode_of_payment:"Bank Card", amount:this.bankCard})
+              // if(this.bankCard > this.total)
+              // {
+              //   this.bankCard = this.total;
+              // }
+              paymentMethods.push({
+                  mode_of_payment:"Bank Card",
+                  amount:this.bankCard
+              })
             } 
-
+            
             return paymentMethods;
         },
       
     },
 
     methods: {
+      truncateToTwoDecimals(num) {
+        return Math.trunc(num * 100) / 100;
+      },
 
       focusSubmitPrintButton() {
         if(this.balance<=0)
@@ -428,7 +452,12 @@ import { getItemVatAndTotal, sum } from '@/helper';
                 return el != null;
               });
 
+              console.log("Filtered : ",filtered);
+              
+
             let totalVATAmount = filtered.reduce((accum, item) => accum + item.vat_amount, 0);
+            
+            
             // if(this.creditSale){
 
             // }
@@ -445,11 +474,11 @@ import { getItemVatAndTotal, sum } from '@/helper';
                 items : filtered,
                 taxes: [
                 {
-                  charge_type: "On Net Total",
+                  charge_type: "Actual",
                   account_head: "VAT 15% - ET", // The account head for VAT in ERPNext
                   rate: 0, // If the rate is not fixed, you can keep it 0 and calculate the actual VAT amount below
                   tax_amount: totalVATAmount, // The calculated total VAT amount
-                  description: "VAT",
+                  description: "Custom VAT",
                 }
               ],
               payments: this.paymentMethods
@@ -461,21 +490,23 @@ import { getItemVatAndTotal, sum } from '@/helper';
           axios.defaults.headers.post['Content-Type'] = 'application/json';
           axios.defaults.headers.post['Authorization'] = `Basic ${localStorage.getItem('token')}`;
        
-          axios.post(sendToERPNext, invoiceData).then(erpResponse => {
+         await axios.post(sendToERPNext, invoiceData).then(async erpResponse => {
             const erpResult = erpResponse.data.data;
             console.log(erpResult);
             //this.printInvoiceDirectly(erpResult);
             this.invoiceNo = erpResult.name;
             let submitody = {"doc": erpResult}
             let submitAPI=this.baseURL+`/api/method/frappe.client.submit`;
-            axios.post(submitAPI,submitody).then(submitResponse => {
+            await axios.post(submitAPI,submitody).then(submitResponse => {
               console.log(submitResponse);
+              this.printInvoice(this.invoiceNo);
+              this.ClearOrder()
+            this.showPayment =false;
             });
             
-            this.printInvoice(this.invoiceNo);
+            
             //alert('Invoice saved and sent to ZATCA successfully!');
-            this.ClearOrder()
-            this.showPayment =false;
+            
           });
             
         } catch (error) {

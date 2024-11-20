@@ -52,6 +52,13 @@ const routes = [
     }
   },
   {
+    path: "/item-master",
+    component: () => import('../views/ItemComponent.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: "/settings",
     component: () => import('../views/SettingsWindow.vue'),
     meta: {

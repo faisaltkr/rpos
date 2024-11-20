@@ -206,6 +206,7 @@ import * as JSPM from 'jsprintmanager';
           name: item.item_name,
           quantity: 1,
           price: item.price,
+          uom:item.stock_uom,
           item_name_arabic: item.item_name_arabic,
           total: item.price, // Initialize total for new item
           vatRate: (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate : 0

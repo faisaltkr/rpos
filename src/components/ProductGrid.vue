@@ -7,14 +7,9 @@
           
             <img v-if="item.image" :src="item.image" alt="" class=" object-cover float-left mr-5 h-20 w-full">
           <img v-else :src="'https://as1.ftcdn.net/v2/jpg/00/70/62/40/1000_F_70624079_oK7bRAjfxEF6thKmaWewjBqgAlMHPSl4.jpg'" alt="Item Image" class="h-20 w-full object-cover float-left mr-5 my-2" />
-          
-        
           <p class=" top-3 text-right absolute z-40 bg-gray-300 p-1 text-black">{{ item.price }}</p>
         <p>{{ item.item_code }}</p>
         <p class="text-sm">{{ item.item_name }} <span class="ml-2 text-right">{{ item.item_name_arabic }}</span></p>
-        
-          
-        
       </div>
     </div>
     
@@ -24,15 +19,16 @@
             <span class="col-span-2">Item</span>
             <span>Rate</span>
             <span>UOM</span>
-            <span class="text-right">E-rate</span>
+            <span class="text-right">Rate(VAT)</span>
       
           </div>
       <div v-for="item in items" :key="item.item_code" class="grid grid-cols-6 px-2 py-1 border-b cursor-pointer" @click="$emit('add-to-cart', item)">
         <span>{{ item.item_code }}</span>
         <span class="col-span-2">{{ item.item_name }} <br> {{ item.item_name_arabic }}</span>
-        <span class="col">{{ item.price?.toFixed(2) }}</span>
+        <span class="col">{{ truncateToTwoDecimals(item.price) }}</span>
         <span class="col">{{ item.stock_uom }}</span>
-        <span class="col text-right">{{ Number(item.standard_rate)?.toFixed(2) }}</span>
+        <!-- <span class="col text-right">{{ Number(item.standard_rate)?.toFixed(2) }}</span> -->
+        <span class="col text-right">{{ Number(calculateVat(item)).toFixed(2) }}</span>
         <!-- <span class="col">{{ (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate+"%" : 0+"%" }}</span> -->
         
         
@@ -44,6 +40,7 @@
 
 <script>
 //import SearchBar from './SearchBar.vue';
+
 
 export default {
 
@@ -60,6 +57,16 @@ export default {
     },
     items: Array,
     viewMode: String
+  },
+
+  methods:{
+    calculateVat(item){
+      var tax_rate = (item?.taxes && item?.taxes.length > 0) ? item?.taxes[0].tax_rate : 0;
+      return item.price + (item.price*tax_rate/100);
+    },
+    truncateToTwoDecimals(num) {
+      return Math.trunc(num * 100) / 100;
+    }
   }
 }
 </script>

@@ -20,10 +20,17 @@
               <label for="" class="text-white">Territory</label>
               <input type="text" v-model="customer.territory" class="mt-2 p-2 text-white bg-gray-600">
             </div>
-            <div>
+            <!-- <div>
               <label for="" class="text-white">Zatca Simplified ( B2C )</label>
               <input type="checkbox" v-model="customer.custom_b2c" class="mt-2 p-2 text-white bg-gray-600">
-            </div>
+            </div> -->
+            <div>
+                <div class="flex items-center mt-8 bg-gray-600 p-2">
+                  
+                    <input id="inline-checkbox" type="checkbox" v-model="customer.custom_b2c" @click="calculateTaxInclusive" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 pr-4">
+                    <label for="inline-checkbox" class="ms-2 text-sm font-medium text-white dark:text-gray-300">Zatca Simplified ( B2C )</label>
+                </div>
+              </div>
 
             <div>
               <label for="" class="text-white">Customer Name in Arabic</label>
@@ -114,13 +121,14 @@ export default {
         const response = await fetch(this.baseURL+'/api/resource/Customer', { // Replace with actual API endpoint
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${localStorage.getItem('token')}`
           },
           body: JSON.stringify(this.customer)
         });
 
         if (response.ok) {
-          alert('Customer registered successfully!');
+          alert('Customer Added successfully!');
           this.clearForm();
         } else {
           const errorData = await response.json();

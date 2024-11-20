@@ -12,6 +12,7 @@
 		<div class="m-4">
 			<h2 class="text-2xl mb-4">Sales Invoice Details</h2>
 			<table v-if="invoiceData" class="min-w-full rounded-lg shadow-md overflow-y-scroll">
+				<thead>
 				<tr class="text-white">
 					<th class="bg-black text-center">#</th>
 					<th class="bg-black">Name</th>
@@ -19,6 +20,8 @@
 					<th class="bg-black">Price</th>
 					<!-- <th class="bg-black">Tax</th> -->
 				</tr>
+			</thead>
+			<tbody>
 				<tr v-bind:key="data.name" v-for="data in invoiceData.items">
 					<td class="w-10"><input type="checkbox" @change="toggleSelection(data)"
 							:checked="selectedItems.find(x => x.name)" /></td>
@@ -27,6 +30,7 @@
 					<td>{{ (data.rate * 100 * data.qty) / 100 }}</td>
 					<!-- <td>{{getItemVatAndTotal({...data, vatRate: (data?.taxes && data?.taxes.length > 0) ? data?.taxes[0].tax_rate : 0})}}</td> -->
 				</tr>
+			</tbody>
 			</table>
 			<p v-else>Loading...</p>
 			<div v-if="selectedItems.length > 0" class="my-2 text-right">

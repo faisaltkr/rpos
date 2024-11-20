@@ -20,6 +20,7 @@
             <li><router-link active-class="active-link" to="/customer">Customer</router-link></li>
             <li><router-link active-class="active-link" to="/pos">POS</router-link></li>
             <li><router-link active-class="active-link" to="/report">Report</router-link></li>
+            <li><router-link active-class="active-link" to="/item-master">Item Maser</router-link></li>
             <li><router-link active-class="active-link" to="/settings">Settings</router-link></li>
           </ul>
         </nav>
