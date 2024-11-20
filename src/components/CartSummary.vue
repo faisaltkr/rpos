@@ -318,9 +318,10 @@ import { getItemVatAndTotal, sum } from '@/helper';
         return Math.trunc(num * 100) / 100;
       },
 
-      focusSubmitPrintButton() {
+      focusSubmitPrintButton(event) {
         if(this.balance<=0)
         {
+          event.preventDefault();
           this.$refs.submitPrintButton.focus();
         }
       },
