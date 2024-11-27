@@ -25,7 +25,7 @@
     </span>
   </div>
 
-  <div class="flex-1 flex overflow-hidden loading overflow-y-scroll h-3/4">
+  <div class="flex-1 flex overflow-hidden loading overflow-y-scroll h-2/4">
     <table class="min-w-full bg-gray-800 rounded-lg shadow-md">
       <thead>
         <tr>
@@ -138,8 +138,8 @@
               </div>
               <div>
                   <label for="" class="text-white">Enter Barcode for selected UOM(For advanced barcodes refer WebApp)</label>
-                  <input @input="addBarcodes" type="text" v-model="barcode" class="mt-2 p-2 text-white bg-gray-600">
-                </div>
+                  <input @input="addBarcodes" type="text" v-model="barcode.barcode" class="mt-2 p-2 text-white bg-gray-600">
+              </div>
                 <div class="mt-1">
                   <label for="" class="text-white p-2">Select Item Tax Template(optional)</label>
                 <select v-model="tax_template" @change="selectTaxTemplate" class="w-full p-3 bg-gray-700">
@@ -201,6 +201,7 @@ import { nextTick } from "vue";
             is_stock_item: 0,
             tax_inclusive:0,
             opening_stock:0,
+            maintain_stock:1,
             company_name:localStorage.getItem('companyName'),
             price:0,
             taxes:[],
@@ -208,7 +209,7 @@ import { nextTick } from "vue";
         },
         barcode:"",
         taxTemplates:[],
-        vat:0
+        vat:0,
       };
       
     },
@@ -254,7 +255,6 @@ import { nextTick } from "vue";
         this.item.barcodes.push(
             {
               "barcode": this.barcode,
-              "barcode_type": "EAN",
               "posa_uom": this.item.stock_uom,
               "uom": this.item.stock_uom,
           });
@@ -348,7 +348,7 @@ import { nextTick } from "vue";
                 },
               })
               .then((result) => {
-                console.log(result);
+              
           
                 let data = result.data.data;
                 this.Uoms = data; 
@@ -364,7 +364,7 @@ import { nextTick } from "vue";
                 },
               })
               .then((result) => {
-                console.log(result);
+              
           
                 let data = result.data.data;
                 this.ItemGroups = data; 
@@ -382,10 +382,11 @@ import { nextTick } from "vue";
               })
               .then((result) => {
                 this.items = result.data.message.items;
-                console.log(this.items);
+            
                 
               });
       },
+
 
       async fetchTaxTemplates() {
         const response = await fetch(`${this.baseURL}/api/resource/Item Tax Template`, {

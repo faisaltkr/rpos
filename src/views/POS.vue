@@ -157,9 +157,22 @@ import * as JSPM from 'jsprintmanager';
         })
       },
       searchByBarcode(barcode) {
-        const foundItem = this.items.find(item => 
+        
+        var foundItem = this.items.find(item => 
           item.barcode_details.some(detail => detail.barcode === barcode)
-      );
+        );
+        if(!foundItem){
+          foundItem = this.items.find(item => 
+            item.item_code.includes(barcode)
+          )
+        }
+        if(!foundItem){
+          barcode = barcode.toLowerCase()
+          foundItem = this.items.find(item => 
+            item.item_name.toLowerCase().includes(barcode)
+          )
+        }
+
         if (foundItem) {
           this.addToCart(foundItem);
         } else if (barcode === "") {

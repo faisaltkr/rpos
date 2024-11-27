@@ -75,7 +75,7 @@
 <script>
  import router from '@/router';
 import axios from 'axios'; // Import Axios
-
+import api from '@/api';
 
 export default {
   name: 'HeaderNav',
@@ -93,8 +93,19 @@ export default {
     this.pos_profile = this.openingEntry ? this.openingEntry.pos_profile : "";
 
     this.calculateTotalAmount()
+    this.fetchItems();
   },
   methods: {
+
+    async fetchItems() {
+            try {
+                const response = await api.getItems();
+                this.items = response.data;
+                console.log(this.items)
+            } catch (error) {
+                console.error('Error fetching items:', error);
+            }
+        },
 
     calculateTotalAmount() {
   try {
